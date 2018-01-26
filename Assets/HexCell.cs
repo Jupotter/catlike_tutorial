@@ -2,19 +2,27 @@
 
 public class HexCell : MonoBehaviour
 {
-    [SerializeField]
-    HexCell[] neighbors;
-    public HexCoordinates coordinates;
+    public HexGridChunk chunk;
     public Color color;
-    private int elevation;
+    public HexCoordinates coordinates;
 
     public RectTransform uiRect;
 
-    public Vector3 Position
+    private int elevation = int.MinValue;
+    [SerializeField]
+    HexCell[] neighbors;
+    
+    public Color Color
     {
-        get
+        get { return this.color; }
+        set
         {
-            return transform.localPosition;
+            if (color == value)
+            {
+                return;
+            }
+            color = value;
+            Refresh();
         }
     }
 
@@ -23,6 +31,11 @@ public class HexCell : MonoBehaviour
         get { return this.elevation; }
         set
         {
+
+            if (elevation == value)
+            {
+                return;
+            }
             this.elevation = value;
             Vector3 position = transform.localPosition;
             position.y = value * HexMetrics.elevationStep;
@@ -34,7 +47,29 @@ public class HexCell : MonoBehaviour
             Vector3 uiPosition = uiRect.localPosition;
             uiPosition.z = -position.y;
             uiRect.localPosition = uiPosition;
+            Refresh();
         }
+    }
+
+    public Vector3 Position
+    {
+        get
+        {
+            return transform.localPosition;
+        }
+    }
+    public HexEdgeType GetEdgeType(HexDirection direction)
+    {
+        return HexMetrics.GetEdgeType(
+            elevation, neighbors[(int)direction].elevation
+        );
+    }
+
+    public HexEdgeType GetEdgeType(HexCell otherCell)
+    {
+        return HexMetrics.GetEdgeType(
+            elevation, otherCell.elevation
+        );
     }
 
     public HexCell GetNeighbor(HexDirection direction)
@@ -48,17 +83,19 @@ public class HexCell : MonoBehaviour
         cell.neighbors[(int)direction.Opposite()] = this;
     }
 
-    public HexEdgeType GetEdgeType(HexDirection direction)
+    void Refresh()
     {
-        return HexMetrics.GetEdgeType(
-            elevation, neighbors[(int)direction].elevation
-        );
-    }
-
-    public HexEdgeType GetEdgeType(HexCell otherCell)
-    {
-        return HexMetrics.GetEdgeType(
-            elevation, otherCell.elevation
-        );
+        if (chunk)
+        {
+            chunk.Refresh();
+            for (int i = 0; i < neighbors.Length; i++)
+            {
+                HexCell neighbor = neighbors[i];
+                if (neighbor != null && neighbor.chunk != chunk)
+                {
+                    neighbor.chunk.Refresh();
+                }
+            }
+        }
     }
 }

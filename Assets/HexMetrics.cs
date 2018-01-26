@@ -13,6 +13,7 @@ public static class HexMetrics
 
     public const float elevationStep = 2f;
 
+    public const int chunkSizeX = 5, chunkSizeZ = 5;
 
     #region Corners
 
