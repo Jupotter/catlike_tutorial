@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class HexGrid : MonoBehaviour
@@ -83,6 +84,21 @@ public class HexGrid : MonoBehaviour
         AddCellToChunk(x, z, cell);
     }
 
+    public HexCell GetCell(HexCoordinates coordinates)
+    {
+        int z = coordinates.Z;
+        if (z < 0 || z >= cellCountZ)
+        {
+            return null;
+        }
+        int x = coordinates.X + z / 2;
+        if (x < 0 || x >= cellCountX)
+        {
+            return null;
+        }
+        return cells[x + z * cellCountX];
+    }
+
     void AddCellToChunk(int x, int z, HexCell cell)
     {
         int chunkX = x / HexMetrics.chunkSizeX;
@@ -123,5 +139,13 @@ public class HexGrid : MonoBehaviour
     void OnEnable()
     {
         HexMetrics.noiseSource = noiseSource;
+    }
+
+    public void ShowUI(bool visible)
+    {
+        for (int i = 0; i < chunks.Length; i++)
+        {
+            chunks[i].ShowUI(visible);
+        }
     }
 }
