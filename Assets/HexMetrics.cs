@@ -2,10 +2,12 @@
 
 public static class HexMetrics
 {
+    public const float outerToInner = 0.866025404f;
+    public const float innerToOuter = 1f / outerToInner;
 
     public const float outerRadius = 10f;
 
-    public const float innerRadius = outerRadius * 0.866025404f;
+    public const float innerRadius = outerRadius * outerToInner;
 
     public const float solidFactor = 0.8f;
 
@@ -14,6 +16,8 @@ public static class HexMetrics
     public const float elevationStep = 2f;
 
     public const int chunkSizeX = 5, chunkSizeZ = 5;
+
+    public const float streamBedElevationOffset = -1f;
 
     #region Corners
 
@@ -53,7 +57,14 @@ public static class HexMetrics
             blendFactor;
     }
 
-#endregion
+    public static Vector3 GetSolidEdgeMiddle(HexDirection direction)
+    {
+        return
+            (corners[(int)direction] + corners[(int)direction + 1]) *
+            (0.5f * solidFactor);
+    }
+
+    #endregion
 
     #region Terrace
 
@@ -98,7 +109,7 @@ public static class HexMetrics
 
     #region Noise
     public static Texture2D noiseSource;
-    public const float cellPerturbStrength = 4f;
+    public const float cellPerturbStrength = 0f;//4f;
     public const float noiseScale = 0.003f;
     public const float elevationPerturbStrength = 1f;
 
