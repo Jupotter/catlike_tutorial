@@ -9,7 +9,8 @@ public class HexGridChunk : MonoBehaviour
     HexCell[] cells;
 
     Canvas gridCanvas;
-    HexMesh hexMesh;
+    public HexMesh terrain;
+
     public void AddCell(int index, HexCell cell)
     {
         cells[index] = cell;
@@ -20,20 +21,20 @@ public class HexGridChunk : MonoBehaviour
 
     public void Refresh()
     {
-        //		hexMesh.Triangulate(cells);
+        //		terrain.Triangulate(cells);
         enabled = true;
     }
 
     void LateUpdate()
     {
-        hexMesh.Triangulate(cells);
+        terrain.Triangulate(cells);
         enabled = false;
     }
 
     void Awake()
     {
         gridCanvas = GetComponentInChildren<Canvas>();
-        hexMesh = GetComponentInChildren<HexMesh>();
+        terrain = GetComponentInChildren<HexMesh>();
 
         cells = new HexCell[HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ];
         ShowUI(false);
