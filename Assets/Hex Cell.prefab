@@ -51,6 +51,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e6e220598bd3cc46be62c61f1b41ee0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chunk: {fileID: 0}
+  color: {r: 0, g: 0, b: 0, a: 0}
+  coordinates:
+    x: 0
+    z: 0
+  uiRect: {fileID: 0}
   neighbors:
   - {fileID: 0}
   - {fileID: 0}
@@ -58,7 +64,4 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  coordinates:
-    x: 0
-    z: 0
-  color: {r: 0, g: 0, b: 0, a: 0}
+  roads: 000000000000

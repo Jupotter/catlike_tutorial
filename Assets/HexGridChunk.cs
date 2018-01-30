@@ -9,7 +9,7 @@ public class HexGridChunk : MonoBehaviour
     HexCell[] cells;
 
     Canvas gridCanvas;
-    public HexMesh terrain, rivers;
+    public HexMesh terrain, rivers, roads;
 
     public void AddCell(int index, HexCell cell)
     {
@@ -51,6 +51,7 @@ public class HexGridChunk : MonoBehaviour
     {
         terrain.Clear();
         rivers.Clear();
+        this.roads.Clear();
 
         for (int i = 0; i < cells.Length; i++)
         {
@@ -59,6 +60,7 @@ public class HexGridChunk : MonoBehaviour
 
         terrain.Apply();
         rivers.Apply();
+        this.roads.Apply();
     }
 
     void Triangulate(HexCell cell)
