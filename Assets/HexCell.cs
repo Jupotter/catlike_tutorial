@@ -138,6 +138,14 @@ public class HexCell : MonoBehaviour
     bool hasIncomingRiver, hasOutgoingRiver;
     HexDirection incomingRiver, outgoingRiver;
 
+    public HexDirection RiverBeginOrEndDirection
+    {
+        get
+        {
+            return hasIncomingRiver ? incomingRiver : outgoingRiver;
+        }
+    }
+
     public bool HasIncomingRiver
     {
         get
