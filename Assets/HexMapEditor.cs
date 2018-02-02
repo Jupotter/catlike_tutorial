@@ -6,31 +6,25 @@ using UnityEngine.EventSystems;
 public class HexMapEditor : MonoBehaviour
 {
     public Color[] colors;
-
     public HexGrid hexGrid;
 
     private Color activeColor;
-
     int activeElevation;
-
+    int activeWaterLevel;
     bool applyColor;
-
     bool applyElevation = true;
-
+    bool applyWaterLevel = true;
     int brushSize;
-
     HexDirection dragDirection;
-
     bool isDrag;
-
     HexCell previousCell;
-
     OptionalToggle riverMode, roadMode;
 
     enum OptionalToggle
     {
         Ignore, Yes, No
     }
+
     public void SelectColor(int index)
     {
         applyColor = index >= 0;
@@ -67,6 +61,16 @@ public class HexMapEditor : MonoBehaviour
         roadMode = (OptionalToggle)mode;
     }
 
+    public void SetApplyWaterLevel(bool toggle)
+    {
+        applyWaterLevel = toggle;
+    }
+
+    public void SetWaterLevel(float level)
+    {
+        activeWaterLevel = (int)level;
+    }
+
     public void ShowUI(bool visible)
     {
         hexGrid.ShowUI(visible);
@@ -88,6 +92,10 @@ public class HexMapEditor : MonoBehaviour
             if (applyElevation)
             {
                 cell.Elevation = this.activeElevation;
+            }
+            if (applyWaterLevel)
+            {
+                cell.WaterLevel = activeWaterLevel;
             }
             if (riverMode == OptionalToggle.No)
             {
