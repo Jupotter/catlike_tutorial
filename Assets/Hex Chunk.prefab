@@ -136,6 +136,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1928806418822312
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4520587115606868}
+  - component: {fileID: 114707162691179282}
+  m_Layer: 0
+  m_Name: Features
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1969618691427766
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,6 +187,7 @@ Transform:
   - {fileID: 4813760625449476}
   - {fileID: 4985078231486222}
   - {fileID: 4514500097386024}
+  - {fileID: 4520587115606868}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -212,6 +229,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4090015935536202}
   m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4520587115606868
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1928806418822312}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4090015935536202}
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4573366580295948
 Transform:
@@ -529,6 +559,7 @@ MonoBehaviour:
   water: {fileID: 114366296013491768}
   waterShore: {fileID: 114892292563509814}
   estuaries: {fileID: 114454826393222576}
+  features: {fileID: 114707162691179282}
 --- !u!114 &114133735583456552
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -605,6 +636,19 @@ MonoBehaviour:
   useColors: 0
   useUVCoordinates: 1
   useUV2Coordinates: 1
+--- !u!114 &114707162691179282
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1928806418822312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f66e144c404af524abe6037593e8f16c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  featurePrefab: {fileID: 4529199683651908, guid: 3332da9321a479a4da64bb702f4361b1,
+    type: 2}
 --- !u!114 &114862222786340128
 MonoBehaviour:
   m_ObjectHideFlags: 1
