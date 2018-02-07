@@ -309,6 +309,8 @@ public class HexCell : MonoBehaviour
 
     #region Water
 
+    int waterLevel;
+
     public int WaterLevel
     {
         get { return waterLevel; }
@@ -323,9 +325,6 @@ public class HexCell : MonoBehaviour
             Refresh();
         }
     }
-
-    int waterLevel;
-
     public bool IsUnderwater
     {
         get { return waterLevel > elevation; }
@@ -343,6 +342,7 @@ public class HexCell : MonoBehaviour
     #endregion
 
     #region Features
+    int urbanLevel, farmLevel, plantLevel;
 
     public int UrbanLevel
     {
@@ -359,8 +359,36 @@ public class HexCell : MonoBehaviour
             }
         }
     }
+    public int FarmLevel
+    {
+        get
+        {
+            return farmLevel;
+        }
+        set
+        {
+            if (farmLevel != value)
+            {
+                farmLevel = value;
+                RefreshSelfOnly();
+            }
+        }
+    }
 
-    int urbanLevel;
-
+    public int PlantLevel
+    {
+        get
+        {
+            return plantLevel;
+        }
+        set
+        {
+            if (plantLevel != value)
+            {
+                plantLevel = value;
+                RefreshSelfOnly();
+            }
+        }
+    }
     #endregion
 }

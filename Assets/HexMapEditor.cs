@@ -15,18 +15,18 @@ public class HexMapEditor : MonoBehaviour
     private Color activeColor;
     private int   activeElevation;
     private int   activeWaterLevel;
-    private int   activeUrbanLevel;
+    private int   activeUrbanLevel, activeFarmLevel, activePlantLevel;
     private bool  applyColor;
     private bool  applyElevation  = true;
     private bool  applyWaterLevel = true;
-    private bool  applyUrbanLevel;
+    private bool  applyUrbanLevel, applyFarmLevel, applyPlantLevel;
     private int   brushSize;
 
     private OptionalToggle riverMode, roadMode;
 
     enum OptionalToggle
     {
-        Ignore,
+        [UsedImplicitly] Ignore,
         Yes,
         No
     }
@@ -46,6 +46,7 @@ public class HexMapEditor : MonoBehaviour
         applyElevation = toggle;
     }
 
+    [UsedImplicitly]
     public void SetBrushSize(float size)
     {
         brushSize = (int) size;
@@ -87,6 +88,26 @@ public class HexMapEditor : MonoBehaviour
         applyUrbanLevel = toggle;
     }
 
+    public void SetApplyFarmLevel(bool toggle)
+    {
+        applyFarmLevel = toggle;
+    }
+
+    public void SetFarmLevel(float level)
+    {
+        activeFarmLevel = (int)level;
+    }
+
+    public void SetApplyPlantLevel(bool toggle)
+    {
+        applyPlantLevel = toggle;
+    }
+
+    public void SetPlantLevel(float level)
+    {
+        activePlantLevel = (int)level;
+    }
+
     [UsedImplicitly]
     public void SetUrbanLevel(float level)
     {
@@ -121,6 +142,12 @@ public class HexMapEditor : MonoBehaviour
 
             if (applyUrbanLevel) {
                 cell.UrbanLevel = activeUrbanLevel;
+            }
+            if (applyFarmLevel) {
+                cell.FarmLevel = activeFarmLevel;
+            }
+            if (applyPlantLevel) {
+                cell.PlantLevel = activePlantLevel;
             }
 
             if (riverMode == OptionalToggle.No) {

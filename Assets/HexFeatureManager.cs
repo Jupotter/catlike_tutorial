@@ -14,9 +14,7 @@ public struct HexFeatureCollection
 
 public class HexFeatureManager : MonoBehaviour
 {
-
-
-    public HexFeatureCollection[] urbanPrefabs;
+    public HexFeatureCollection[] urbanCollections, farmCollections, plantCollections;
 
     private Transform container;
 
@@ -37,25 +35,28 @@ public class HexFeatureManager : MonoBehaviour
     {
         HexMetrics.HexHash hash = HexMetrics.SampleHashGrid(position);
 
-        Transform prefab = PickPrefab(cell.UrbanLevel, hash.a, hash.b);
+        Transform prefab = PickPrefab(urbanCollections, cell.UrbanLevel, hash.a, hash.d);
         if (!prefab) {
             return;
         }
+        Transform otherPrefab = PickPrefab(
+            farmCollections, cell.FarmLevel, hash.b, hash.d
+        );
 
         Transform instance     = Instantiate(prefab);
         position.y             += instance.localScale.y * 0.5f;
         instance.localPosition =  HexMetrics.Perturb(position);
-        instance.localRotation =  Quaternion.Euler(0f, 360f * hash.c, 0f);
+        instance.localRotation =  Quaternion.Euler(0f, 360f * hash.e, 0f);
         instance.SetParent(container, false);
     }
 
-    Transform PickPrefab(int level, float hash, float choice)
+    Transform PickPrefab(HexFeatureCollection[] collections, int level, float hash, float choice)
     {
         if (level > 0) {
             float[] thresholds = HexMetrics.GetFeatureThresholds(level - 1);
             for (int i = 0; i < thresholds.Length; i++) {
                 if (hash      < thresholds[i]) {
-                    return urbanPrefabs[i].Pick(choice);
+                    return collections[i].Pick(choice);
                 }
             }
         }
