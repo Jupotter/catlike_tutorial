@@ -341,4 +341,26 @@ public class HexCell : MonoBehaviour
     }
 
     #endregion
+
+    #region Features
+
+    public int UrbanLevel
+    {
+        get
+        {
+            return urbanLevel;
+        }
+        set
+        {
+            if (urbanLevel != value)
+            {
+                urbanLevel = value;
+                RefreshSelfOnly();
+            }
+        }
+    }
+
+    int urbanLevel;
+
+    #endregion
 }
