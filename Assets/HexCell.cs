@@ -6,8 +6,7 @@ public class HexCell : MonoBehaviour
     public HexGridChunk   chunk;
     public Color          color;
     public HexCoordinates coordinates;
-
-    public RectTransform uiRect;
+    public RectTransform  uiRect;
 
     private          int       elevation = int.MinValue;
     [SerializeField] HexCell[] neighbors;
@@ -46,19 +45,7 @@ public class HexCell : MonoBehaviour
             Vector3 uiPosition   = uiRect.localPosition;
             uiPosition.z         = -position.y;
             uiRect.localPosition = uiPosition;
-            if (
-                hasOutgoingRiver &&
-                elevation < GetNeighbor(outgoingRiver).elevation
-            ) {
-                RemoveOutgoingRiver();
-            }
-
-            if (
-                hasIncomingRiver &&
-                elevation > GetNeighbor(incomingRiver).elevation
-            ) {
-                RemoveIncomingRiver();
-            }
+            ValidateRivers();
 
             for (int i = 0; i                                            < roads.Length; i++) {
                 if (roads[i] && GetElevationDifference((HexDirection) i) > 1) {
@@ -232,7 +219,7 @@ public class HexCell : MonoBehaviour
         }
 
         HexCell neighbor = GetNeighbor(direction);
-        if (!neighbor || elevation < neighbor.elevation) {
+        if (!IsValidRiverDestination(neighbor)) {
             return;
         }
 
@@ -249,6 +236,30 @@ public class HexCell : MonoBehaviour
         neighbor.incomingRiver    = direction.Opposite();
 
         SetRoad((int) direction, false);
+    }
+
+    bool IsValidRiverDestination(HexCell neighbor)
+    {
+        return neighbor && (
+                   elevation >= neighbor.elevation || waterLevel == neighbor.elevation
+               );
+    }
+
+    void ValidateRivers()
+    {
+        if (
+            hasOutgoingRiver &&
+            !IsValidRiverDestination(GetNeighbor(outgoingRiver))
+        ) {
+            RemoveOutgoingRiver();
+        }
+
+        if (
+            hasIncomingRiver &&
+            !GetNeighbor(incomingRiver).IsValidRiverDestination(this)
+        ) {
+            RemoveIncomingRiver();
+        }
     }
 
     #endregion rivers
@@ -308,6 +319,7 @@ public class HexCell : MonoBehaviour
             }
 
             waterLevel = value;
+            ValidateRivers();
             Refresh();
         }
     }
