@@ -24,6 +24,7 @@ public struct EdgeVertices
         result.v5 = HexMetrics.TerraceLerp(a.v5, b.v5, step);
         return result;
     }
+
     public EdgeVertices(Vector3 corner1, Vector3 corner2, float outerStep)
     {
         v1 = corner1;
