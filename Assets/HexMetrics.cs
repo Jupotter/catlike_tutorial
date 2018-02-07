@@ -159,21 +159,51 @@ public static class HexMetrics
 
     #region Hashgrid
 
-    public const int hashGridSize = 256;
+    public struct HexHash
+    {
 
-    static float[] hashGrid;
+        public float a, b;
+
+        public static HexHash Create()
+        {
+            HexHash hash;
+            hash.a = Random.value;
+            hash.b = Random.value;
+            return hash;
+        }
+    }
+
+    public const int   hashGridSize  = 256;
+    public const float hashGridScale = 0.25f;
+
+    static HexHash[] hashGrid;
 
     public static void InitializeHashGrid(int seed)
     {
-        hashGrid                  = new float[hashGridSize * hashGridSize];
+        hashGrid = new HexHash[hashGridSize * hashGridSize];
 
         Random.State currentState = Random.state;
         Random.InitState(seed);
         for (int i = 0; i < hashGrid.Length; i++) {
-            hashGrid[i] = Random.value;
+            hashGrid[i] = HexHash.Create();
         }
 
         Random.state = currentState;
+    }
+
+    public static HexHash SampleHashGrid(Vector3 position)
+    {
+        int x = (int) (position.x * hashGridScale) % hashGridSize;
+        if (x < 0) {
+            x += hashGridSize;
+        }
+
+        int z = (int) (position.z * hashGridScale) % hashGridSize;
+        if (z < 0) {
+            z += hashGridSize;
+        }
+
+        return hashGrid[x + z * hashGridSize];
     }
 
     #endregion
