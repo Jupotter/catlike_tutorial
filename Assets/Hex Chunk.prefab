@@ -647,8 +647,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f66e144c404af524abe6037593e8f16c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  featurePrefab: {fileID: 4529199683651908, guid: 3332da9321a479a4da64bb702f4361b1,
-    type: 2}
+  urbanPrefabs:
+  - prefabs:
+    - {fileID: 4392656731675846, guid: ef75acddcc7162047bc62dd2f52ff78a, type: 2}
+    - {fileID: 4481916170767232, guid: 3042a98fe4453294281dab686494ecca, type: 2}
+  - prefabs:
+    - {fileID: 4728658109082344, guid: b6e00e0b398b4c8409f2f66ad594c9ac, type: 2}
+    - {fileID: 4285175993740506, guid: 6369c0adebd1be14787b54d0793701f6, type: 2}
+  - prefabs:
+    - {fileID: 4370500752974478, guid: 2c04d2659a442ad49926c994cbfbd919, type: 2}
+    - {fileID: 4662952881613926, guid: 47e5f7f25946efc42b1631c472168506, type: 2}
 --- !u!114 &114862222786340128
 MonoBehaviour:
   m_ObjectHideFlags: 1

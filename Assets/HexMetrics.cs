@@ -161,14 +161,14 @@ public static class HexMetrics
 
     public struct HexHash
     {
-
-        public float a, b;
+        public float a, b, c;
 
         public static HexHash Create()
         {
             HexHash hash;
-            hash.a = Random.value;
-            hash.b = Random.value;
+            hash.a = Random.value * 0.999f;
+            hash.b = Random.value * 0.999f;
+            hash.c = Random.value * 0.999f;
             return hash;
         }
     }
@@ -204,6 +204,22 @@ public static class HexMetrics
         }
 
         return hashGrid[x + z * hashGridSize];
+    }
+
+    #endregion
+
+    #region Features
+
+    static float[][] featureThresholds =
+    {
+        new float[] { 0.0f, 0.0f, 0.4f },
+        new float[] { 0.0f, 0.4f, 0.6f },
+        new float[] { 0.4f, 0.6f, 0.8f }
+    };
+
+    public static float[] GetFeatureThresholds(int level)
+    {
+        return featureThresholds[level];
     }
 
     #endregion
