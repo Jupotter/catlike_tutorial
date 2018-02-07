@@ -10,6 +10,7 @@ public class HexGrid : MonoBehaviour
     public HexGridChunk chunkPrefab;
     public Color        defaultColor = Color.white;
     public Texture2D    noiseSource;
+    public int          seed;
 
     int            cellCountX, cellCountZ = 6;
     HexCell[]      cells;
@@ -26,6 +27,8 @@ public class HexGrid : MonoBehaviour
     void Awake()
     {
         HexMetrics.noiseSource = this.noiseSource;
+        HexMetrics.InitializeHashGrid(seed);
+
         GetComponentInChildren<Canvas>();
         GetComponentInChildren<HexMesh>();
 
@@ -130,7 +133,11 @@ public class HexGrid : MonoBehaviour
 
     void OnEnable()
     {
-        HexMetrics.noiseSource = noiseSource;
+        if (!HexMetrics.noiseSource)
+        {
+            HexMetrics.noiseSource = noiseSource;
+            HexMetrics.InitializeHashGrid(seed);
+        }
     }
 
     public void ShowUI(bool visible)
