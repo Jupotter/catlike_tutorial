@@ -3,12 +3,11 @@
 [System.Serializable]
 public struct HexFeatureCollection
 {
-
     public Transform[] prefabs;
 
     public Transform Pick(float choice)
     {
-        return prefabs[(int)(choice * prefabs.Length)];
+        return prefabs[(int) (choice * prefabs.Length)];
     }
 }
 
@@ -35,13 +34,31 @@ public class HexFeatureManager : MonoBehaviour
     {
         HexMetrics.HexHash hash = HexMetrics.SampleHashGrid(position);
 
-        Transform prefab = PickPrefab(urbanCollections, cell.UrbanLevel, hash.a, hash.d);
-        if (!prefab) {
+        Transform prefab      = PickPrefab(urbanCollections, cell.UrbanLevel, hash.a, hash.d);
+        Transform otherPrefab = PickPrefab(farmCollections, cell.FarmLevel, hash.b, hash.d);
+
+        float usedHash = hash.a;
+        if (prefab) {
+            if (otherPrefab && hash.b < hash.a) {
+                prefab = otherPrefab;
+                usedHash = hash.b;
+            }
+        } else if (otherPrefab) {
+            prefab = otherPrefab;
+            usedHash = hash.b;
+        }
+
+        otherPrefab = PickPrefab(plantCollections, cell.PlantLevel, hash.c, hash.d);
+
+        if (prefab) {
+            if (otherPrefab && hash.c < usedHash) {
+                prefab = otherPrefab;
+            }
+        } else if (otherPrefab) {
+            prefab = otherPrefab;
+        } else {
             return;
         }
-        Transform otherPrefab = PickPrefab(
-            farmCollections, cell.FarmLevel, hash.b, hash.d
-        );
 
         Transform instance     = Instantiate(prefab);
         position.y             += instance.localScale.y * 0.5f;

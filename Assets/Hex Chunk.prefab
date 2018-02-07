@@ -647,7 +647,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f66e144c404af524abe6037593e8f16c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  urbanPrefabs:
+  urbanCollections:
   - prefabs:
     - {fileID: 4392656731675846, guid: ef75acddcc7162047bc62dd2f52ff78a, type: 2}
     - {fileID: 4481916170767232, guid: 3042a98fe4453294281dab686494ecca, type: 2}
@@ -657,6 +657,26 @@ MonoBehaviour:
   - prefabs:
     - {fileID: 4370500752974478, guid: 2c04d2659a442ad49926c994cbfbd919, type: 2}
     - {fileID: 4662952881613926, guid: 47e5f7f25946efc42b1631c472168506, type: 2}
+  farmCollections:
+  - prefabs:
+    - {fileID: 4337728154422742, guid: e11a7a2f3dcfc0045a14966f28b7a313, type: 2}
+    - {fileID: 4138843132894200, guid: 722d3aee0bb56804bab947f6c4dc527f, type: 2}
+  - prefabs:
+    - {fileID: 4929233322523500, guid: 4bb1ec09a7007a5419bb2e2eb4be5773, type: 2}
+    - {fileID: 4201817483451684, guid: 4d46320828f107e4c996e7a56106dac4, type: 2}
+  - prefabs:
+    - {fileID: 4249584792793486, guid: f80f496f33102964daa3f61b59904e69, type: 2}
+    - {fileID: 4613063379333258, guid: 0547d200b6b07204b9e2ec1d15c63c5a, type: 2}
+  plantCollections:
+  - prefabs:
+    - {fileID: 4333162422449412, guid: 1243b065b6054804a911c35d2c24673d, type: 2}
+    - {fileID: 4938386043051640, guid: 6849a811ec56aac4bbb200450509616d, type: 2}
+  - prefabs:
+    - {fileID: 4158245005249842, guid: bf981b7b43b075e4999a7e982417f513, type: 2}
+    - {fileID: 4620203272187612, guid: 7c67a3233011f4b4aa9f22923abd3b2e, type: 2}
+  - prefabs:
+    - {fileID: 4507775968185178, guid: 00eb0ebef8c3ba446a6db2b973cbf288, type: 2}
+    - {fileID: 4029573087740358, guid: 325f742a14e9d5641985bceb017efdfc, type: 2}
 --- !u!114 &114862222786340128
 MonoBehaviour:
   m_ObjectHideFlags: 1
