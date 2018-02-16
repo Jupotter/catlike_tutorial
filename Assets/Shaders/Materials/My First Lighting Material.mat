@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: My First Lighting Material
-  m_Shader: {fileID: 4800000, guid: 72c971314d7630a45b68923cb6fc2006, type: 3}
+  m_Shader: {fileID: 4800000, guid: 8b153fe54f2b461448a870c9edcf309f, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
