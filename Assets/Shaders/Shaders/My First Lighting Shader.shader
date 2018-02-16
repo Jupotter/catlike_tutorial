@@ -19,68 +19,27 @@
 			#pragma vertex MyVertexProgram
 			#pragma fragment MyFragmentProgram
 			
-			#include "UnityPBSLighting.cginc"
+			#include "Lighting.cginc"
 
-			float4 _Tint;
-			float _Metallic;
-			float _Smoothness;
-			sampler2D _MainTex;
-			float4 _MainTex_ST;
+			ENDCG
+		}
 
-			struct VertexData {
-				float4 position : POSITION;
-				float3 normal : NORMAL;
-				float2 uv : TEXCOORD0;
-			};
-
-			struct Interpolators {
-				float4 position : SV_POSITION;
-				float2 uv : TEXCOORD0;
-				float3 normal : NORMAL;
-				float3 worldPos : TEXCOORD2;
-			};
-
-			Interpolators  MyVertexProgram (VertexData v)
-			{
-				Interpolators i;
-				i.uv = TRANSFORM_TEX(v.uv, _MainTex);
-				i.position = UnityObjectToClipPos(v.position);
-				i.worldPos = mul(unity_ObjectToWorld, v.position);
-				i.normal = UnityObjectToWorldNormal(v.normal);
-				i.normal = normalize(i.normal);
-				return i;
+		Pass {
+			Tags {
+				"LightMode" = "ForwardAdd"
 			}
+			
+			Blend One One
 
-			float4 MyFragmentProgram (Interpolators i) 
-			: SV_TARGET {
-				i.normal = normalize(i.normal);
-				float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
-				float3 lightDir = _WorldSpaceLightPos0.xyz;
-				float3 lightColor = _LightColor0.rgb;
-				float3 albedo = tex2D(_MainTex, i.uv).rgb * _Tint.rgb;
+			CGPROGRAM
 
-				float3 specularTint;
-				float oneMinusReflectivity;
+			#pragma target 3.0
 
-				albedo = DiffuseAndSpecularFromMetallic(
-					albedo, _Metallic, specularTint, oneMinusReflectivity
-				);
+			#pragma vertex MyVertexProgram
+			#pragma fragment MyFragmentProgram
 
-				UnityLight light;
-				light.color = lightColor;
-				light.dir = lightDir;
-				light.ndotl = DotClamped(i.normal, lightDir);
-				UnityIndirect indirectLight;
-				indirectLight.diffuse = 0;
-				indirectLight.specular = 0;
+			#include "Lighting.cginc"
 
-				return UNITY_BRDF_PBS(
-					albedo, specularTint,
-					oneMinusReflectivity, _Smoothness,
-					i.normal, viewDir,
-					light, indirectLight
-				);
-			}
 
 			ENDCG
 		}
