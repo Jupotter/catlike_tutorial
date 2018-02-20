@@ -99,7 +99,7 @@ UnityLight CreateLight (Interpolators i) {
 	return light;
 }
 
-UnityIndirect CreateIndirectLight (Interpolators i) {
+UnityIndirect CreateIndirectLight (Interpolators i, float3 viewDir) {
 	UnityIndirect indirectLight;
 	indirectLight.diffuse = 0;
 	indirectLight.specular = 0;
@@ -110,6 +110,13 @@ UnityIndirect CreateIndirectLight (Interpolators i) {
 
 	#if defined(FORWARD_BASE_PASS)
 		indirectLight.diffuse += max(0, ShadeSH9(float4(i.normal, 1)));
+		float3 reflectionDir = reflect(-viewDir, i.normal);
+		Unity_GlossyEnvironmentData envData;
+		envData.roughness = 1 - _Smoothness;
+		envData.reflUVW = reflectionDir;
+		indirectLight.specular = Unity_GlossyEnvironment(
+			UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData
+		);
 	#endif
 
 	return indirectLight;
@@ -153,7 +160,7 @@ float4 MyFragmentProgram (Interpolators i)
 		albedo, specularTint,
 		oneMinusReflectivity, _Smoothness,
 		i.normal, viewDir,
-		CreateLight(i), CreateIndirectLight(i)
+		CreateLight(i), CreateIndirectLight(i, viewDir)
 	);
 }
 
