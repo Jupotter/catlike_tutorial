@@ -116,6 +116,53 @@ public class MyLightingShaderGUI : ShaderGUI
         return FindProperty(name, properties);
     }
 
+    void DoRenderingMode()
+    {
+        RenderingMode mode = RenderingMode.Opaque;
+        showAlphaCutoff = false;
+
+        if (IsKeywordEnabled("_RENDERING_CUTOUT"))
+        {
+            mode = RenderingMode.Cutout;
+            showAlphaCutoff = true;
+        }
+        else if (IsKeywordEnabled("_RENDERING_FADE"))
+        {
+            mode = RenderingMode.Fade;
+        }
+        else if (IsKeywordEnabled("_RENDERING_TRANSPARENT"))
+        {
+            mode = RenderingMode.Transparent;
+        }
+
+        EditorGUI.BeginChangeCheck();
+        mode = (RenderingMode)EditorGUILayout.EnumPopup(MakeLabel("Rendering Mode"), mode);
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            RecordAction("Rendering Mode");
+            SetKeyword("_RENDERING_CUTOUT", mode == RenderingMode.Cutout);
+            SetKeyword("_RENDERING_FADE", mode == RenderingMode.Fade);
+            SetKeyword("_RENDERING_TRANSPARENT", mode == RenderingMode.Transparent);
+
+            RenderingSettings settings = RenderingSettings.modes[(int)mode];
+
+            foreach (Material m in editor.targets)
+            {
+                m.renderQueue = (int)settings.queue;
+                m.SetOverrideTag("RenderType", settings.renderType);
+                m.SetInt("_SrcBlend", (int)settings.srcBlend);
+                m.SetInt("_DstBlend", (int)settings.dstBlend);
+                m.SetInt("_ZWrite", settings.zWrite ? 1 : 0);
+            }
+        }
+
+        if (mode == RenderingMode.Fade || mode == RenderingMode.Transparent)
+        {
+            DoSemitransparentShadows();
+        }
+    }
+
     void DoMain()
     {
         GUILayout.Label("Main Maps", EditorStyles.boldLabel);
@@ -268,38 +315,21 @@ public class MyLightingShaderGUI : ShaderGUI
         EditorGUI.indentLevel -= 2;
     }
 
-    void DoRenderingMode()
+    void DoSemitransparentShadows()
     {
-        RenderingMode mode = RenderingMode.Opaque;
-        showAlphaCutoff = false;
-
-        if (IsKeywordEnabled("_RENDERING_CUTOUT")) {
-            mode            = RenderingMode.Cutout;
-            showAlphaCutoff = true;
-        } else if (IsKeywordEnabled("_RENDERING_FADE")) {
-            mode = RenderingMode.Fade;
-        } else if (IsKeywordEnabled("_RENDERING_TRANSPARENT")) {
-            mode = RenderingMode.Transparent;
-        }
-
         EditorGUI.BeginChangeCheck();
-        mode = (RenderingMode) EditorGUILayout.EnumPopup(MakeLabel("Rendering Mode"), mode);
-
-        if (EditorGUI.EndChangeCheck()) {
-            RecordAction("Rendering Mode");
-            SetKeyword("_RENDERING_CUTOUT",      mode == RenderingMode.Cutout);
-            SetKeyword("_RENDERING_FADE",        mode == RenderingMode.Fade);
-            SetKeyword("_RENDERING_TRANSPARENT", mode == RenderingMode.Transparent);
-
-            RenderingSettings settings = RenderingSettings.modes[(int) mode];
-
-            foreach (Material m in editor.targets) {
-                m.renderQueue = (int) settings.queue;
-                m.SetOverrideTag("RenderType", settings.renderType);
-                m.SetInt("_SrcBlend", (int) settings.srcBlend);
-                m.SetInt("_DstBlend", (int) settings.dstBlend);
-                m.SetInt("_ZWrite",   settings.zWrite ? 1 : 0);
-            }
+        bool semitransparentShadows =
+            EditorGUILayout.Toggle(
+                MakeLabel("Semitransp. Shadows", "Semitransparent Shadows"),
+                IsKeywordEnabled("_SEMITRANSPARENT_SHADOWS")
+            );
+        if (EditorGUI.EndChangeCheck())
+        {
+            SetKeyword("_SEMITRANSPARENT_SHADOWS", semitransparentShadows);
+        }
+        if (!semitransparentShadows)
+        {
+            this.showAlphaCutoff = true;
         }
     }
 
