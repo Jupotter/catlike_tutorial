@@ -10,6 +10,8 @@ float4 _Tint;
 sampler2D _MainTex, _DetailTex, _DetailMask;
 float4 _MainTex_ST, _DetailTex_ST;
 
+float _AlphaCutoff;
+
 sampler2D _MetallicMap;
 float _Metallic;
 float _Smoothness;
@@ -97,6 +99,14 @@ float GetDetailMask (Interpolators i) {
 	#else
 		return 1;
 	#endif
+}
+
+float GetAlpha (Interpolators i) {
+	float alpha = _Tint.a;
+	#if !defined(_SMOOTHNESS_ALBEDO)
+		alpha *= tex2D(_MainTex, i.uv.xy).a;
+	#endif
+	return alpha;
 }
 
 float3 GetAlbedo (Interpolators i) {
@@ -269,6 +279,11 @@ void InitializeFragmentNormal(inout Interpolators i) {
 
 float4 MyFragmentProgram (Interpolators i) 
 : SV_TARGET {
+	float alpha = GetAlpha(i);
+	#if defined(_RENDERING_CUTOUT)
+		clip(alpha - _AlphaCutoff);
+	#endif
+		
 	InitializeFragmentNormal(i);
 
 	float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
@@ -280,6 +295,11 @@ float4 MyFragmentProgram (Interpolators i)
 		GetAlbedo(i), GetMetallic(i), specularTint, oneMinusReflectivity
 	);
 
+	#if defined(_RENDERING_TRANSPARENT)
+		albedo *= alpha;
+		alpha = 1 - oneMinusReflectivity + alpha * oneMinusReflectivity;
+	#endif
+
 	float4 color = UNITY_BRDF_PBS(
 		albedo, specularTint,
 		oneMinusReflectivity, GetSmoothness(i),	
@@ -288,6 +308,9 @@ float4 MyFragmentProgram (Interpolators i)
 	);
 
 	color.rgb += GetEmission(i);
+	#if defined(_RENDERING_FADE) || defined(_RENDERING_TRANSPARENT)
+		color.a = alpha;
+	#endif
 	return color;
 }
 
