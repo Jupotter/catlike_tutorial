@@ -10,7 +10,8 @@ public class MyLightingShaderGUI : ShaderGUI
         Metallic
     }
 
-    static GUIContent staticLabel = new GUIContent();
+    static readonly GUIContent           staticLabel    = new GUIContent();
+    static readonly ColorPickerHDRConfig emissionConfig = new ColorPickerHDRConfig(0f, 99f, 1f / 99f, 3f);
 
     Material           target;
     MaterialEditor     editor;
@@ -68,6 +69,7 @@ public class MyLightingShaderGUI : ShaderGUI
         DoMetallic();
         DoSmoothness();
         DoNormals();
+        DoEmission();
         editor.TextureScaleOffsetProperty(mainTex);
     }
 
@@ -87,12 +89,10 @@ public class MyLightingShaderGUI : ShaderGUI
     void DoSmoothness()
     {
         SmoothnessSource source = SmoothnessSource.Uniform;
-        if (IsKeywordEnabled("_SMOOTHNESS_ALBEDO"))
-        {
+
+        if (IsKeywordEnabled("_SMOOTHNESS_ALBEDO")) {
             source = SmoothnessSource.Albedo;
-        }
-        else if (IsKeywordEnabled("_SMOOTHNESS_METALLIC"))
-        {
+        } else if (IsKeywordEnabled("_SMOOTHNESS_METALLIC")) {
             source = SmoothnessSource.Metallic;
         }
 
@@ -102,17 +102,31 @@ public class MyLightingShaderGUI : ShaderGUI
         EditorGUI.indentLevel += 1;
 
         EditorGUI.BeginChangeCheck();
-        source = (SmoothnessSource)EditorGUILayout.EnumPopup(MakeLabel("Source"), source);
-        if (EditorGUI.EndChangeCheck())
-        {
+        source = (SmoothnessSource) EditorGUILayout.EnumPopup(MakeLabel("Source"), source);
+
+        if (EditorGUI.EndChangeCheck()) {
             RecordAction("Smoothness Source");
-            SetKeyword("_SMOOTHNESS_ALBEDO", source == SmoothnessSource.Albedo);
-            SetKeyword(
-                "_SMOOTHNESS_METALLIC", source == SmoothnessSource.Metallic
-            );
+            SetKeyword("_SMOOTHNESS_ALBEDO",   source == SmoothnessSource.Albedo);
+            SetKeyword("_SMOOTHNESS_METALLIC", source == SmoothnessSource.Metallic);
         }
 
         EditorGUI.indentLevel -= 3;
+    }
+
+    void DoEmission()
+    {
+        MaterialProperty map = FindProperty("_EmissionMap");
+        EditorGUI.BeginChangeCheck();
+
+        editor.TexturePropertyWithHDRColor(MakeLabel(map, "Emission (RGB)"),
+                                           map,
+                                           FindProperty("_Emission"),
+                                           emissionConfig,
+                                           false);
+
+        if (EditorGUI.EndChangeCheck()) {
+            SetKeyword("_EMISSION_MAP", map.textureValue);
+        }
     }
 
     void DoNormals()
