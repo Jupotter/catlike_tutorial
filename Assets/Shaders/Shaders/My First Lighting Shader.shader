@@ -31,6 +31,7 @@
 	CGINCLUDE
 
 	#define BINORMAL_PER_FRAGMENT
+	#define FOG_DISTANCE
 
 	ENDCG
 
@@ -59,6 +60,7 @@
 			#pragma shader_feature _DETAIL_NORMAL_MAP
 
 			#pragma multi_compile_fwdadd_fullshadows
+			#pragma multi_compile_fog
 
 			#pragma vertex MyVertexProgram
 			#pragma fragment MyFragmentProgram
@@ -92,6 +94,7 @@
 			#pragma shader_feature _DETAIL_NORMAL_MAP
 
 			#pragma multi_compile_fwdadd_fullshadows
+			#pragma multi_compile_fog
 
 			#pragma vertex MyVertexProgram
 			#pragma fragment MyFragmentProgram
