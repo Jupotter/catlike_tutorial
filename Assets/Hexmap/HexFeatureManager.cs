@@ -130,7 +130,65 @@ public class HexFeatureManager : MonoBehaviour
                         Vector3 right,
                         HexCell rightCell)
     {
-        AddWallSegment(pivot, left, pivot, right);
+        if (pivotCell.IsUnderwater) {
+            return;
+        }
+
+        bool hasLeftWall = !leftCell.IsUnderwater  && pivotCell.GetEdgeType(leftCell)  != HexEdgeType.Cliff;
+        bool hasRighWall = !rightCell.IsUnderwater && pivotCell.GetEdgeType(rightCell) != HexEdgeType.Cliff;
+
+        if (hasLeftWall) {
+            if (hasRighWall) {
+                AddWallSegment(pivot, left, pivot, right);
+            } else if (leftCell.Elevation < rightCell.Elevation) {
+                AddWallWedge(pivot, left, right);
+            } else {
+                AddWallCap(pivot, left);
+            }
+        } else if (hasRighWall) {
+            if (rightCell.Elevation < leftCell.Elevation) {
+                AddWallWedge(right, pivot, left);
+            } else {
+                AddWallCap(right, pivot);
+            }
+        }
+    }
+
+    void AddWallWedge(Vector3 near, Vector3 far, Vector3 point)
+    {
+        near  = HexMetrics.Perturb(near);
+        far   = HexMetrics.Perturb(far);
+        point = HexMetrics.Perturb(point);
+
+        Vector3 center    = HexMetrics.WallLerp(near, far);
+        Vector3 thickness = HexMetrics.WallThicknessOffset(near, far);
+
+        Vector3 v1, v2, v3, v4;
+        Vector3 pointTop = point;
+        point.y = center.y;
+
+        v1   = v3   = center - thickness;
+        v2   = v4   = center + thickness;
+        v3.y = v4.y = pointTop.y = center.y + HexMetrics.wallHeight;
+        walls.AddQuadUnperturbed(v1,    point, v3,       pointTop);
+        walls.AddQuadUnperturbed(point, v2,    pointTop, v4);
+        walls.AddTriangleUnperturbed(pointTop, v3, v4);
+    }
+
+    void AddWallCap(Vector3 near, Vector3 far)
+    {
+        near = HexMetrics.Perturb(near);
+        far  = HexMetrics.Perturb(far);
+
+        Vector3 center    = HexMetrics.WallLerp(near, far);
+        Vector3 thickness = HexMetrics.WallThicknessOffset(near, far);
+
+        Vector3 v1, v2, v3, v4;
+
+        v1   = v3   = center   - thickness;
+        v2   = v4   = center   + thickness;
+        v3.y = v4.y = center.y + HexMetrics.wallHeight;
+        walls.AddQuadUnperturbed(v1, v2, v3, v4);
     }
 
     public void AddWall(Vector3 c1, HexCell cell1, Vector3 c2, HexCell cell2, Vector3 c3, HexCell cell3)
@@ -156,12 +214,27 @@ public class HexFeatureManager : MonoBehaviour
         }
     }
 
-    public void AddWall(EdgeVertices near, HexCell nearCell, EdgeVertices far, HexCell farCell)
+    public void AddWall(EdgeVertices near,
+                        HexCell      nearCell,
+                        EdgeVertices far,
+                        HexCell      farCell,
+                        bool         hasRiver,
+                        bool         hasRoad)
     {
-        if (nearCell.Walled != farCell.Walled) {
+        if (nearCell.Walled != farCell.Walled
+            && !nearCell.IsUnderwater
+            && !farCell.IsUnderwater
+            && nearCell.GetEdgeType(farCell) != HexEdgeType.Cliff) {
             AddWallSegment(near.v1, far.v1, near.v2, far.v2);
-            AddWallSegment(near.v2, far.v2, near.v3, far.v3);
-            AddWallSegment(near.v3, far.v3, near.v4, far.v4);
+
+            if (hasRiver || hasRoad) {
+                AddWallCap(near.v2, far.v2);
+                AddWallCap(far.v4,  near.v4);
+            } else {
+                AddWallSegment(near.v2, far.v2, near.v3, far.v3);
+                AddWallSegment(near.v3, far.v3, near.v4, far.v4);
+            }
+
             AddWallSegment(near.v4, far.v4, near.v5, far.v5);
         }
     }
