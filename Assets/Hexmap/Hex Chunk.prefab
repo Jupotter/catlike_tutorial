@@ -766,6 +766,12 @@ MonoBehaviour:
     - {fileID: 4507775968185178, guid: 00eb0ebef8c3ba446a6db2b973cbf288, type: 2}
     - {fileID: 4029573087740358, guid: 325f742a14e9d5641985bceb017efdfc, type: 2}
   walls: {fileID: 114454826393222576}
+  wallTower: {fileID: 4544700963382356, guid: dd9d4770c5868ab44b440a66f89b8652, type: 2}
+  bridge: {fileID: 4116365998417954, guid: d20538f2984ac6a4e85e4ec6f2289558, type: 2}
+  special:
+  - {fileID: 4090996476625592, guid: 105c2049e4386744e87b0294c4440eb7, type: 2}
+  - {fileID: 4124272185963184, guid: 70e564b12373a37428abd5ae2227c061, type: 2}
+  - {fileID: 4629723625627296, guid: a536b3186b8d5c6489e320b44baaf1a4, type: 2}
 --- !u!114 &114862222786340128
 MonoBehaviour:
   m_ObjectHideFlags: 1
