@@ -168,7 +168,7 @@ public class MyLightingShaderGUI : ShaderGUI
         GUILayout.Label("Main Maps", EditorStyles.boldLabel);
 
         MaterialProperty mainTex     = FindProperty("_MainTex");
-        MaterialProperty tint        = FindProperty("_Tint");
+        MaterialProperty tint        = FindProperty("_Color");
         GUIContent       albedoLabel = MakeLabel(mainTex, "Albedo (RGB)");
 
         editor.TexturePropertySingleLine(albedoLabel, mainTex, tint);
@@ -249,6 +249,12 @@ public class MyLightingShaderGUI : ShaderGUI
 
         if (EditorGUI.EndChangeCheck()) {
             SetKeyword("_EMISSION_MAP", map.textureValue);
+
+            foreach (Material m in editor.targets)
+            {
+                m.globalIlluminationFlags =
+                    MaterialGlobalIlluminationFlags.BakedEmissive;
+            }
         }
     }
 
@@ -309,7 +315,7 @@ public class MyLightingShaderGUI : ShaderGUI
 
     void DoAlphaCutoff()
     {
-        MaterialProperty slider = FindProperty("_AlphaCutoff");
+        MaterialProperty slider = FindProperty("_Cutoff");
         EditorGUI.indentLevel += 2;
         editor.ShaderProperty(slider, MakeLabel(slider));
         EditorGUI.indentLevel -= 2;

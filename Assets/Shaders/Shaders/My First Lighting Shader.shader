@@ -1,9 +1,9 @@
 ﻿Shader "Custom/My First Lighting Shader" {
 	Properties {
-		_Tint ("Tint", Color)  = (1, 1, 1, 1)
+		_Color ("Tint", Color)  = (1, 1, 1, 1)
 		_MainTex ("Albedo", 2D) = "white" {}
 		
-		_AlphaCutoff ("Alpha Cutoff", Range(0, 1)) = 0.5
+		_Cutoff ("Alpha Cutoff", Range(0, 1)) = 0.5
 
 		[NoScaleOffset] _NormalMap ("Normals", 2D) = "bump" {}
 		_BumpScale ("Bump Scale", Float) = 1
@@ -59,7 +59,8 @@
 			#pragma shader_feature _DETAIL_ALBEDO_MAP
 			#pragma shader_feature _DETAIL_NORMAL_MAP
 
-			#pragma multi_compile_fwdadd_fullshadows
+			#pragma multi_compile _ SHADOWS_SCREEN
+			#pragma multi_compile _ LIGHTMAP_ON VERTEXLIGHT_ON
 			#pragma multi_compile_fog
 
 			#pragma vertex MyVertexProgram
@@ -149,6 +150,7 @@
 			#pragma shader_feature _DETAIL_NORMAL_MAP
 
 			#pragma multi_compile _ UNITY_HDR_ON
+			#pragma multi_compile _ LIGHTMAP_ON
 
 			#pragma vertex MyVertexProgram
 			#pragma fragment MyFragmentProgram
@@ -156,6 +158,29 @@
 			#define DEFERRED_PASS
 
 			#include "Lighting.cginc"
+
+			ENDCG
+		}
+
+		Pass {
+			Tags {
+				"LightMode" = "Meta"
+			}
+
+			Cull Off
+
+			CGPROGRAM
+
+			#pragma shader_feature _METALLIC_MAP
+			#pragma shader_feature _ _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC
+			#pragma shader_feature _EMISSION_MAP
+			#pragma shader_feature _DETAIL_MASK
+			#pragma shader_feature _DETAIL_ALBEDO_MAP
+
+			#pragma vertex MyLightmappingVertexProgram
+			#pragma fragment MyLightmappingFragmentProgram
+
+			#include "My Lightmapping.cginc"
 
 			ENDCG
 		}
