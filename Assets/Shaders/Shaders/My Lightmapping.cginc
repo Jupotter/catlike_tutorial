@@ -90,8 +90,8 @@ float4 MyLightmappingFragmentProgram (Interpolators i) : SV_TARGET {
         surfaceData.SpecularColor, oneMinusReflectivity
     );
 
-	float roughness = SmoothnessToRoughness(GetSmoothness(i)) * 0.5;
-	surfaceData.Albedo += surfaceData.SpecularColor * roughness;
+    float roughness = SmoothnessToRoughness(GetSmoothness(i)) * 0.5;
+    surfaceData.Albedo += surfaceData.SpecularColor * roughness;
     return UnityMetaFragment(surfaceData);
 }
 
