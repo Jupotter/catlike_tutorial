@@ -234,6 +234,7 @@ public class MyLightingShaderGUI : ShaderGUI
         EditorGUI.BeginChangeCheck();
         editor.TexturePropertySingleLine(MakeLabel(map, "Occlusion (G)"), map, slider);
 
+
         if (EditorGUI.EndChangeCheck()) {
             SetKeyword("_OCCLUSION_MAP", map.textureValue);
         }
@@ -247,13 +248,15 @@ public class MyLightingShaderGUI : ShaderGUI
         GUIContent label = MakeLabel(map, "Emission (RGB)");
         editor.TexturePropertyWithHDRColor(label, map, FindProperty("_Emission"), emissionConfig, false);
 
+        editor.LightmapEmissionProperty(2);
+
         if (EditorGUI.EndChangeCheck()) {
             SetKeyword("_EMISSION_MAP", map.textureValue);
 
             foreach (Material m in editor.targets)
             {
-                m.globalIlluminationFlags =
-                    MaterialGlobalIlluminationFlags.BakedEmissive;
+                m.globalIlluminationFlags &=
+                    ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
             }
         }
     }
