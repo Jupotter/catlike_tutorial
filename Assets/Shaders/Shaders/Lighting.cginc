@@ -53,8 +53,43 @@ struct VertexData {
     float2 uv2 : TEXCOORD2;
 };
 
-struct Interpolators {
+struct InterpolatorsVertex {
     float4 pos : SV_POSITION;
+    float4 uv : TEXCOORD0;
+    float3 normal : NORMAL;
+
+    #if defined(BINORMAL_PER_FRAGMENT)
+        float4 tangent : TEXCOORD2;
+    #else
+        float3 tangent : TEXCOORD2;
+        float3 binormal : TEXCOORD3;
+    #endif
+
+    #if FOG_DEPTH
+        float4 worldPos : TEXCOORD4;
+    #else
+        float3 worldPos : TEXCOORD4;
+    #endif
+    
+    UNITY_SHADOW_COORDS(5)
+
+    #if defined(VERTEXLIGHT_ON)
+        float3 vertexLightColor : TEXCOORD6;
+    #endif
+    #if defined(LIGHTMAP_ON) || ADDITIONAL_MASKED_DIRECTIONAL_SHADOWS
+        float2 lightmapUV : TEXCOORD6;
+    #endif
+    #if defined(DYNAMICLIGHTMAP_ON)
+        float2 dynamicLightmapUV : TEXCOORD7;
+    #endif
+};
+
+struct Interpolators {
+    #if defined(LOD_FADE_CROSSFADE)
+        UNITY_VPOS_TYPE pos : VPOS;
+    #else
+        float4 pos : SV_POSITION;
+    #endif
     float4 uv : TEXCOORD0;
     float3 normal : NORMAL;
 
@@ -205,6 +240,7 @@ float FadeShadows (Interpolators i, float attenuation) {
         #if ADDITIONAL_MASKED_DIRECTIONAL_SHADOWS
             attenuation = SHADOW_ATTENUATION(i);
         #endif
+
         float viewZ = dot(_WorldSpaceCameraPos - i.worldPos, UNITY_MATRIX_V[2].xyz);
         float shadowFadeDistance = UnityComputeShadowFadeDistance(i.worldPos, viewZ);
         float shadowFade = UnityComputeShadowFade(shadowFadeDistance);
@@ -231,9 +267,9 @@ void ApplySubtractiveLighting (
     #endif
 }
 
-Interpolators  MyVertexProgram (VertexData v)
+InterpolatorsVertex  MyVertexProgram (VertexData v)
 {
-    Interpolators i;
+    InterpolatorsVertex i;
     UNITY_INITIALIZE_OUTPUT(Interpolators, i);
     i.pos = UnityObjectToClipPos(v.vertex);
     i.worldPos.xyz = mul(unity_ObjectToWorld, v.vertex);
@@ -451,6 +487,10 @@ struct FragmentOutput {
 
 FragmentOutput MyFragmentProgram (Interpolators i) 
 : SV_TARGET {
+    #if defined(LOD_FADE_CROSSFADE)
+        UnityApplyDitherCrossFade(i.pos);
+    #endif
+
     float alpha = GetAlpha(i);
     #if defined(_RENDERING_CUTOUT)
         clip(alpha - _Cutoff);
