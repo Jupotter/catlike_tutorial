@@ -342,6 +342,13 @@ public class MyLightingShaderGUI : ShaderGUI
         }
     }
 
+    void DoAdvanced()
+    {
+        GUILayout.Label("Advanced Options", EditorStyles.boldLabel);
+
+        editor.EnableInstancingField();
+    }
+
     public override void OnGUI(MaterialEditor editor, MaterialProperty[] properties)
     {
         this.target     = editor.target as Material;
@@ -350,5 +357,6 @@ public class MyLightingShaderGUI : ShaderGUI
         DoRenderingMode();
         DoMain();
         DoSecondary();
+        DoAdvanced();
     }
 }
