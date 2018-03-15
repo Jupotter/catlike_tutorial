@@ -249,7 +249,9 @@ void ApplyParallax (inout Interpolators i) {
         float height = tex2D(_ParallaxMap, i.uv.xy).g;
         height -= 0.5;
         height *= _ParallaxStrength;
-        i.uv.xy += i.tangentViewDir.xy * height;
+		float2 uvOffset = i.tangentViewDir.xy * height;
+		i.uv.xy += uvOffset;
+		i.uv.zw += uvOffset * (_DetailTex_ST.xy / _MainTex_ST.xy);
     #endif
 }
 
