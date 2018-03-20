@@ -2,13 +2,14 @@
 
 public static class HexMetrics
 {
-    public const float blendFactor  = 1f - solidFactor;
-    public const int   chunkSizeX   = 5, chunkSizeZ = 5;
-    public const float innerRadius  = outerRadius * outerToInner;
-    public const float innerToOuter = 1f          / outerToInner;
-    public const float outerRadius  = 10f;
-    public const float outerToInner = 0.866025404f;
-    public const float solidFactor  = 0.8f;
+    public const  float   blendFactor  = 1f - solidFactor;
+    public const  int     chunkSizeX   = 5, chunkSizeZ = 5;
+    public const  float   innerRadius  = outerRadius * outerToInner;
+    public const  float   innerToOuter = 1f          / outerToInner;
+    public const  float   outerRadius  = 10f;
+    public const  float   outerToInner = 0.866025404f;
+    public const  float   solidFactor  = 0.8f;
+    public static Color[] colors;
 
     #region Corners
 
