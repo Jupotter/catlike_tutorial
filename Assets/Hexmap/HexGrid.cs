@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,6 +35,17 @@ public class HexGrid : MonoBehaviour
 
         GetComponentInChildren<Canvas>();
         GetComponentInChildren<HexMesh>();
+        CreateMap();
+    }
+
+    [UsedImplicitly]
+    public void CreateMap()
+    {
+        if (chunks != null) {
+            foreach (var c in this.chunks) {
+                Destroy(c.gameObject);
+            }
+        }
 
         cellCountX = chunkCountX * HexMetrics.chunkSizeX;
         cellCountZ = chunkCountZ * HexMetrics.chunkSizeZ;
@@ -172,6 +184,5 @@ public class HexGrid : MonoBehaviour
         }
     }
 
-#endregion
-
+    #endregion
 }
