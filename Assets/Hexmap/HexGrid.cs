@@ -8,13 +8,13 @@ public class HexGrid : MonoBehaviour
 {
     public Text         cellLabelPrefab;
     public HexCell      cellPrefab;
-    public int          chunkCountX = 4, chunkCountZ = 3;
+    public int          cellCountX = 20, cellCountZ = 15;
     public HexGridChunk chunkPrefab;
     public Texture2D    noiseSource;
     public int          seed;
     public Color[]      colors;
 
-    int            cellCountX, cellCountZ = 6;
+    int            chunkCountX, chunkCountZ;
     HexCell[]      cells;
     HexGridChunk[] chunks;
 
@@ -35,23 +35,33 @@ public class HexGrid : MonoBehaviour
 
         GetComponentInChildren<Canvas>();
         GetComponentInChildren<HexMesh>();
-        CreateMap();
+        CreateMap(cellCountX, cellCountZ);
     }
 
     [UsedImplicitly]
-    public void CreateMap()
+    public bool CreateMap(int x, int z)
     {
+        if (x <= 0 || x % HexMetrics.chunkSizeX != 0 || z <= 0 || z % HexMetrics.chunkSizeZ != 0) {
+            Debug.LogError("Unsupported map size.");
+
+            return false;
+        }
+
         if (chunks != null) {
             foreach (var c in this.chunks) {
                 Destroy(c.gameObject);
             }
         }
 
-        cellCountX = chunkCountX * HexMetrics.chunkSizeX;
-        cellCountZ = chunkCountZ * HexMetrics.chunkSizeZ;
+        cellCountX  = x;
+        cellCountZ  = z;
+        chunkCountX = cellCountX / HexMetrics.chunkSizeX;
+        chunkCountZ = cellCountZ / HexMetrics.chunkSizeZ;
 
         CreateChunks();
         CreateCells();
+
+        return true;
     }
 
     void CreateCell(int x, int z, int i)
@@ -168,13 +178,29 @@ public class HexGrid : MonoBehaviour
 
     public void Save(BinaryWriter writer)
     {
+        writer.Write(cellCountX);
+        writer.Write(cellCountZ);
+
         foreach (var c in this.cells) {
             c.Save(writer);
         }
     }
 
-    public void Load(BinaryReader reader)
+    public void Load(BinaryReader reader, int header)
     {
+        int x = 20, z = 15;
+
+        if (header >= 1) {
+            x = reader.ReadInt32();
+            z = reader.ReadInt32();
+        }
+
+        if (x != cellCountX || z != cellCountZ) {
+            if (!CreateMap(x, z)) {
+                return;
+            }
+        }
+
         foreach (var c in this.cells) {
             c.Load(reader);
         }
