@@ -9,7 +9,6 @@ public static class HexMetrics
     public const  float   outerRadius  = 10f;
     public const  float   outerToInner = 0.866025404f;
     public const  float   solidFactor  = 0.8f;
-    public static Color[] colors;
 
     #region Corners
 

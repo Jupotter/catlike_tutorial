@@ -12,7 +12,6 @@ public class HexGrid : MonoBehaviour
     public HexGridChunk chunkPrefab;
     public Texture2D    noiseSource;
     public int          seed;
-    public Color[]      colors;
 
     int            chunkCountX, chunkCountZ;
     HexCell[]      cells;
@@ -29,7 +28,6 @@ public class HexGrid : MonoBehaviour
 
     void Awake()
     {
-        HexMetrics.colors      = colors;
         HexMetrics.noiseSource = this.noiseSource;
         HexMetrics.InitializeHashGrid(seed);
 
@@ -163,7 +161,6 @@ public class HexGrid : MonoBehaviour
         if (!HexMetrics.noiseSource) {
             HexMetrics.noiseSource = noiseSource;
             HexMetrics.InitializeHashGrid(seed);
-            HexMetrics.colors = colors;
         }
     }
 

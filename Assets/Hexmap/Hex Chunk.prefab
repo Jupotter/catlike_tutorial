@@ -328,7 +328,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 1a895d75766951d4cb94555c118b7c3d, type: 2}
+  - {fileID: 2100000, guid: 11611b4d1a383804ebd19f724538dd1f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -648,6 +648,7 @@ MonoBehaviour:
   useColors: 0
   useUVCoordinates: 1
   useUV2Coordinates: 0
+  useTerrainTypes: 0
 --- !u!114 &114292225455354124
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -663,6 +664,7 @@ MonoBehaviour:
   useColors: 0
   useUVCoordinates: 1
   useUV2Coordinates: 0
+  useTerrainTypes: 0
 --- !u!114 &114293673916393822
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -694,6 +696,7 @@ MonoBehaviour:
   useColors: 0
   useUVCoordinates: 0
   useUV2Coordinates: 0
+  useTerrainTypes: 0
 --- !u!114 &114454826393222576
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -709,6 +712,7 @@ MonoBehaviour:
   useColors: 0
   useUVCoordinates: 0
   useUV2Coordinates: 0
+  useTerrainTypes: 0
 --- !u!114 &114593917157850388
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -724,6 +728,7 @@ MonoBehaviour:
   useColors: 0
   useUVCoordinates: 1
   useUV2Coordinates: 1
+  useTerrainTypes: 0
 --- !u!114 &114707162691179282
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -787,6 +792,7 @@ MonoBehaviour:
   useColors: 1
   useUVCoordinates: 0
   useUV2Coordinates: 0
+  useTerrainTypes: 1
 --- !u!114 &114869546116805982
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -823,6 +829,7 @@ MonoBehaviour:
   useColors: 0
   useUVCoordinates: 1
   useUV2Coordinates: 0
+  useTerrainTypes: 0
 --- !u!223 &223650867606670686
 Canvas:
   m_ObjectHideFlags: 1

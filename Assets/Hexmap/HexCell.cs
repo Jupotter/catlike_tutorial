@@ -12,11 +12,6 @@ public class HexCell : MonoBehaviour
     private          int       elevation = int.MinValue;
     [SerializeField] HexCell[] neighbors;
 
-    public Color Color
-    {
-        get { return HexMetrics.colors[terrainTypeIndex]; }
-    }
-
     public int TerrainTypeIndex
     {
         get { return terrainTypeIndex; }
