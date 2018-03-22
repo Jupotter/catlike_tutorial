@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,12 +11,14 @@ public class SaveLoadMenu : MonoBehaviour
     public  Text       menuLabel, actionButtonLabel;
     public  InputField nameInput;
 
+    public RectTransform listContent;
+    public SaveLoadItem  itemPrefab;
+
     string GetSelectedPath()
     {
         string mapName = nameInput.text;
 
-        if (mapName.Length == 0)
-        {
+        if (mapName.Length == 0) {
             return null;
         }
 
@@ -24,8 +27,7 @@ public class SaveLoadMenu : MonoBehaviour
 
     private void Save(string path)
     {
-        using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
-        {
+        using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create))) {
             writer.Write(1);
             hexGrid.Save(writer);
         }
@@ -33,26 +35,38 @@ public class SaveLoadMenu : MonoBehaviour
 
     private void Load(string path)
     {
-        if (!File.Exists(path))
-        {
+        if (!File.Exists(path)) {
             Debug.LogError("File does not exist " + path);
 
             return;
         }
 
-        using (BinaryReader reader = new BinaryReader(File.OpenRead(path)))
-        {
+        using (BinaryReader reader = new BinaryReader(File.OpenRead(path))) {
             int header = reader.ReadInt32();
 
-            if (header <= 1)
-            {
+            if (header <= 1) {
                 hexGrid.Load(reader, header);
                 HexMapCamera.ValidatePosition();
-            }
-            else
-            {
+            } else {
                 Debug.LogWarning("Unknown map format " + header);
             }
+        }
+    }
+
+    void FillList()
+    {
+        for (int i = 0; i < listContent.childCount; i++) {
+            Destroy(listContent.GetChild(i).gameObject);
+        }
+
+        string[] paths = Directory.GetFiles(Application.persistentDataPath, "*.map");
+        Array.Sort(paths);
+
+        foreach (var p in paths) {
+            SaveLoadItem item = Instantiate(itemPrefab);
+            item.menu    = this;
+            item.MapName = Path.GetFileNameWithoutExtension(p);
+            item.transform.SetParent(listContent, false);
         }
     }
 
@@ -60,18 +74,17 @@ public class SaveLoadMenu : MonoBehaviour
     public void Action()
     {
         string path = GetSelectedPath();
-        if (path == null)
-        {
+
+        if (path == null) {
             return;
         }
-        if (saveMode)
-        {
+
+        if (saveMode) {
             Save(path);
-        }
-        else
-        {
+        } else {
             Load(path);
         }
+
         Close();
     }
 
@@ -88,6 +101,7 @@ public class SaveLoadMenu : MonoBehaviour
             actionButtonLabel.text = "Load";
         }
 
+        FillList();
         gameObject.SetActive(true);
         HexMapCamera.Locked = true;
     }
@@ -97,6 +111,23 @@ public class SaveLoadMenu : MonoBehaviour
     {
         gameObject.SetActive(false);
         HexMapCamera.Locked = false;
+    }
+
+    [UsedImplicitly]
+    public void Delete()
+    {
+        string path = GetSelectedPath();
+
+        if (path == null) {
+            return;
+        }
+
+        if (File.Exists(path)) {
+            File.Delete(path);
+        }
+
+        nameInput.text = "";
+        FillList();
     }
 
     [UsedImplicitly]
