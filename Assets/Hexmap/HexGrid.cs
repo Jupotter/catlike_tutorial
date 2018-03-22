@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,38 +8,60 @@ public class HexGrid : MonoBehaviour
 {
     public Text         cellLabelPrefab;
     public HexCell      cellPrefab;
-    public int          chunkCountX = 4, chunkCountZ = 3;
+    public int          cellCountX = 20, cellCountZ = 15;
     public HexGridChunk chunkPrefab;
-    public Color        defaultColor = Color.white;
     public Texture2D    noiseSource;
     public int          seed;
+    public Color[]      colors;
 
-    int            cellCountX, cellCountZ = 6;
+    int            chunkCountX, chunkCountZ;
     HexCell[]      cells;
     HexGridChunk[] chunks;
 
     public HexCell GetCell(Vector3 position)
     {
-        position                   = transform.InverseTransformPoint(position);
+        position = transform.InverseTransformPoint(position);
         HexCoordinates coordinates = HexCoordinates.FromPosition(position);
         int            index       = coordinates.X + coordinates.Z * this.cellCountX + coordinates.Z / 2;
+
         return cells[index];
     }
 
     void Awake()
     {
+        HexMetrics.colors      = colors;
         HexMetrics.noiseSource = this.noiseSource;
         HexMetrics.InitializeHashGrid(seed);
 
         GetComponentInChildren<Canvas>();
         GetComponentInChildren<HexMesh>();
+        CreateMap(cellCountX, cellCountZ);
+    }
 
+    [UsedImplicitly]
+    public bool CreateMap(int x, int z)
+    {
+        if (x <= 0 || x % HexMetrics.chunkSizeX != 0 || z <= 0 || z % HexMetrics.chunkSizeZ != 0) {
+            Debug.LogError("Unsupported map size.");
 
-        cellCountX = chunkCountX * HexMetrics.chunkSizeX;
-        cellCountZ = chunkCountZ * HexMetrics.chunkSizeZ;
+            return false;
+        }
+
+        if (chunks != null) {
+            foreach (var c in this.chunks) {
+                Destroy(c.gameObject);
+            }
+        }
+
+        cellCountX  = x;
+        cellCountZ  = z;
+        chunkCountX = cellCountX / HexMetrics.chunkSizeX;
+        chunkCountZ = cellCountZ / HexMetrics.chunkSizeZ;
 
         CreateChunks();
         CreateCells();
+
+        return true;
     }
 
     void CreateCell(int x, int z, int i)
@@ -47,30 +71,31 @@ public class HexGrid : MonoBehaviour
         position.y = 0f;
         position.z = z * (HexMetrics.outerRadius * 1.5f);
 
-        HexCell cell                 = cells[i] = Instantiate<HexCell>(cellPrefab);
+        HexCell cell = cells[i] = Instantiate(cellPrefab);
         cell.transform.localPosition = position;
         cell.coordinates             = HexCoordinates.FromOffsetCoordinates(x, z);
-        cell.Color                   = defaultColor;
 
         if (x > 0) {
             cell.SetNeighbor(HexDirection.W, cells[i - 1]);
         }
 
-        if (z           > 0) {
+        if (z > 0) {
             if ((z & 1) == 0) {
                 cell.SetNeighbor(HexDirection.SE, cells[i - this.cellCountX]);
+
                 if (x > 0) {
                     cell.SetNeighbor(HexDirection.SW, cells[i - this.cellCountX - 1]);
                 }
             } else {
-                cell.SetNeighbor(HexDirection.SW, cells[i     - this.cellCountX]);
-                if (x < this.cellCountX                       - 1) {
+                cell.SetNeighbor(HexDirection.SW, cells[i - this.cellCountX]);
+
+                if (x < this.cellCountX - 1) {
                     cell.SetNeighbor(HexDirection.SE, cells[i - this.cellCountX + 1]);
                 }
             }
         }
 
-        Text label                           = Instantiate<Text>(cellLabelPrefab);
+        Text label = Instantiate<Text>(cellLabelPrefab);
         label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
         label.text                           = cell.coordinates.ToStringOnSeparateLines();
         cell.uiRect                          = label.rectTransform;
@@ -83,11 +108,13 @@ public class HexGrid : MonoBehaviour
     public HexCell GetCell(HexCoordinates coordinates)
     {
         int z = coordinates.Z;
+
         if (z < 0 || z >= cellCountZ) {
             return null;
         }
 
         int x = coordinates.X + z / 2;
+
         if (x < 0 || x >= cellCountX) {
             return null;
         }
@@ -113,7 +140,7 @@ public class HexGrid : MonoBehaviour
         this.cells = new HexCell[this.cellCountZ * this.cellCountX];
 
         for (int z = 0, i = 0; z < this.cellCountZ; z++) {
-            for (int x = 0; x    < this.cellCountX; x++) {
+            for (int x = 0; x < this.cellCountX; x++) {
                 CreateCell(x, z, i++);
             }
         }
@@ -124,7 +151,7 @@ public class HexGrid : MonoBehaviour
         chunks = new HexGridChunk[chunkCountX * chunkCountZ];
 
         for (int z = 0, i = 0; z < chunkCountZ; z++) {
-            for (int x = 0; x    < chunkCountX; x++) {
+            for (int x = 0; x < chunkCountX; x++) {
                 HexGridChunk chunk = chunks[i++] = Instantiate(chunkPrefab);
                 chunk.transform.SetParent(transform);
             }
@@ -133,10 +160,10 @@ public class HexGrid : MonoBehaviour
 
     void OnEnable()
     {
-        if (!HexMetrics.noiseSource)
-        {
+        if (!HexMetrics.noiseSource) {
             HexMetrics.noiseSource = noiseSource;
             HexMetrics.InitializeHashGrid(seed);
+            HexMetrics.colors = colors;
         }
     }
 
@@ -146,4 +173,42 @@ public class HexGrid : MonoBehaviour
             chunks[i].ShowUI(visible);
         }
     }
+
+    #region Serialization
+
+    public void Save(BinaryWriter writer)
+    {
+        writer.Write(cellCountX);
+        writer.Write(cellCountZ);
+
+        foreach (var c in this.cells) {
+            c.Save(writer);
+        }
+    }
+
+    public void Load(BinaryReader reader, int header)
+    {
+        int x = 20, z = 15;
+
+        if (header >= 1) {
+            x = reader.ReadInt32();
+            z = reader.ReadInt32();
+        }
+
+        if (x != cellCountX || z != cellCountZ) {
+            if (!CreateMap(x, z)) {
+                return;
+            }
+        }
+
+        foreach (var c in this.cells) {
+            c.Load(reader);
+        }
+
+        foreach (var c in this.chunks) {
+            c.Refresh();
+        }
+    }
+
+    #endregion
 }

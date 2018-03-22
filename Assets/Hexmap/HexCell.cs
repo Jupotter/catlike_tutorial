@@ -1,10 +1,11 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public class HexCell : MonoBehaviour
 {
     public HexGridChunk   chunk;
-    public Color          color;
+    int                   terrainTypeIndex;
     public HexCoordinates coordinates;
     public RectTransform  uiRect;
 
@@ -13,15 +14,18 @@ public class HexCell : MonoBehaviour
 
     public Color Color
     {
-        get { return this.color; }
+        get { return HexMetrics.colors[terrainTypeIndex]; }
+    }
+
+    public int TerrainTypeIndex
+    {
+        get { return terrainTypeIndex; }
         set
         {
-            if (color == value) {
-                return;
+            if (terrainTypeIndex != value) {
+                terrainTypeIndex = value;
+                Refresh();
             }
-
-            color = value;
-            Refresh();
         }
     }
 
@@ -34,20 +38,11 @@ public class HexCell : MonoBehaviour
                 return;
             }
 
-            this.elevation   = value;
-            Vector3 position = transform.localPosition;
-            position.y       = value * HexMetrics.elevationStep;
-            position.y       +=
-                (HexMetrics.SampleNoise(position).y * 2f - 1f) *
-                HexMetrics.elevationPerturbStrength;
-            transform.localPosition = position;
-
-            Vector3 uiPosition   = uiRect.localPosition;
-            uiPosition.z         = -position.y;
-            uiRect.localPosition = uiPosition;
+            this.elevation = value;
+            RefreshPosition();
             ValidateRivers();
 
-            for (int i = 0; i                                            < roads.Length; i++) {
+            for (int i = 0; i < roads.Length; i++) {
                 if (roads[i] && GetElevationDifference((HexDirection) i) > 1) {
                     SetRoad(i, false);
                 }
@@ -57,6 +52,19 @@ public class HexCell : MonoBehaviour
         }
     }
 
+    private void RefreshPosition()
+    {
+        Vector3 position = this.transform.localPosition;
+        position.y = elevation * HexMetrics.elevationStep;
+        position.y +=
+            (HexMetrics.SampleNoise(position).y * 2f - 1f) * HexMetrics.elevationPerturbStrength;
+        this.transform.localPosition = position;
+
+        Vector3 uiPosition = this.uiRect.localPosition;
+        uiPosition.z              = -position.y;
+        this.uiRect.localPosition = uiPosition;
+    }
+
     public Vector3 Position
     {
         get { return transform.localPosition; }
@@ -64,16 +72,12 @@ public class HexCell : MonoBehaviour
 
     public HexEdgeType GetEdgeType(HexDirection direction)
     {
-        return HexMetrics.GetEdgeType(
-            elevation, neighbors[(int) direction].elevation
-        );
+        return HexMetrics.GetEdgeType(elevation, neighbors[(int) direction].elevation);
     }
 
     public HexEdgeType GetEdgeType(HexCell otherCell)
     {
-        return HexMetrics.GetEdgeType(
-            elevation, otherCell.elevation
-        );
+        return HexMetrics.GetEdgeType(elevation, otherCell.elevation);
     }
 
     public HexCell GetNeighbor(HexDirection direction)
@@ -91,8 +95,10 @@ public class HexCell : MonoBehaviour
     {
         if (chunk) {
             chunk.Refresh();
+
             for (int i = 0; i < neighbors.Length; i++) {
                 HexCell neighbor = neighbors[i];
+
                 if (neighbor != null && neighbor.chunk != chunk) {
                     neighbor.chunk.Refresh();
                 }
@@ -108,6 +114,7 @@ public class HexCell : MonoBehaviour
     public int GetElevationDifference(HexDirection direction)
     {
         int difference = elevation - GetNeighbor(direction).elevation;
+
         return difference >= 0 ? difference : -difference;
     }
 
@@ -153,29 +160,17 @@ public class HexCell : MonoBehaviour
 
     public float RiverSurfaceY
     {
-        get
-        {
-            return
-                (elevation + HexMetrics.waterElevationOffset) *
-                HexMetrics.elevationStep;
-        }
+        get { return (elevation + HexMetrics.waterElevationOffset) * HexMetrics.elevationStep; }
     }
 
     public float StreamBedY
     {
-        get
-        {
-            return
-                (elevation + HexMetrics.streamBedElevationOffset) *
-                HexMetrics.elevationStep;
-        }
+        get { return (elevation + HexMetrics.streamBedElevationOffset) * HexMetrics.elevationStep; }
     }
 
     public bool HasRiverThroughEdge(HexDirection direction)
     {
-        return
-            hasIncomingRiver && incomingRiver == direction ||
-            hasOutgoingRiver && outgoingRiver == direction;
+        return hasIncomingRiver && incomingRiver == direction || hasOutgoingRiver && outgoingRiver == direction;
     }
 
     public void RemoveIncomingRiver()
@@ -187,7 +182,7 @@ public class HexCell : MonoBehaviour
         hasIncomingRiver = false;
         RefreshSelfOnly();
 
-        HexCell neighbor          = GetNeighbor(incomingRiver);
+        HexCell neighbor = GetNeighbor(incomingRiver);
         neighbor.hasOutgoingRiver = false;
         neighbor.RefreshSelfOnly();
     }
@@ -201,7 +196,7 @@ public class HexCell : MonoBehaviour
         hasOutgoingRiver = false;
         RefreshSelfOnly();
 
-        HexCell neighbor          = GetNeighbor(outgoingRiver);
+        HexCell neighbor = GetNeighbor(outgoingRiver);
         neighbor.hasIncomingRiver = false;
         neighbor.RefreshSelfOnly();
     }
@@ -219,45 +214,41 @@ public class HexCell : MonoBehaviour
         }
 
         HexCell neighbor = GetNeighbor(direction);
+
         if (!IsValidRiverDestination(neighbor)) {
             return;
         }
 
         RemoveOutgoingRiver();
+
         if (hasIncomingRiver && incomingRiver == direction) {
             RemoveIncomingRiver();
         }
 
         hasOutgoingRiver = true;
         outgoingRiver    = direction;
+        specialIndex     = 0;
 
         neighbor.RemoveIncomingRiver();
         neighbor.hasIncomingRiver = true;
         neighbor.incomingRiver    = direction.Opposite();
+        neighbor.specialIndex     = 0;
 
         SetRoad((int) direction, false);
     }
 
     bool IsValidRiverDestination(HexCell neighbor)
     {
-        return neighbor && (
-                   elevation >= neighbor.elevation || waterLevel == neighbor.elevation
-               );
+        return neighbor && (elevation >= neighbor.elevation || waterLevel == neighbor.elevation);
     }
 
     void ValidateRivers()
     {
-        if (
-            hasOutgoingRiver &&
-            !IsValidRiverDestination(GetNeighbor(outgoingRiver))
-        ) {
+        if (hasOutgoingRiver && !IsValidRiverDestination(GetNeighbor(outgoingRiver))) {
             RemoveOutgoingRiver();
         }
 
-        if (
-            hasIncomingRiver &&
-            !GetNeighbor(incomingRiver).IsValidRiverDestination(this)
-        ) {
+        if (hasIncomingRiver && !GetNeighbor(incomingRiver).IsValidRiverDestination(this)) {
             RemoveIncomingRiver();
         }
     }
@@ -298,8 +289,10 @@ public class HexCell : MonoBehaviour
     public void AddRoad(HexDirection direction)
     {
         if (!roads[(int) direction]
-         && !HasRiverThroughEdge(direction)
-         && GetElevationDifference(direction) <= 1) {
+            && !HasRiverThroughEdge(direction)
+            && !IsSpecial
+            && !GetNeighbor(direction).IsSpecial
+            && GetElevationDifference(direction) <= 1) {
             int i = (int) direction;
             SetRoad(i, true);
         }
@@ -325,6 +318,7 @@ public class HexCell : MonoBehaviour
             Refresh();
         }
     }
+
     public bool IsUnderwater
     {
         get { return waterLevel > elevation; }
@@ -332,43 +326,34 @@ public class HexCell : MonoBehaviour
 
     public float WaterSurfaceY
     {
-        get
-        {
-            return
-                (waterLevel + HexMetrics.waterElevationOffset) * HexMetrics.elevationStep;
-        }
+        get { return (waterLevel + HexMetrics.waterElevationOffset) * HexMetrics.elevationStep; }
     }
 
     #endregion
 
     #region Features
+
     int urbanLevel, farmLevel, plantLevel;
+    int specialIndex;
 
     public int UrbanLevel
     {
-        get
-        {
-            return urbanLevel;
-        }
+        get { return urbanLevel; }
         set
         {
-            if (urbanLevel != value)
-            {
+            if (urbanLevel != value) {
                 urbanLevel = value;
                 RefreshSelfOnly();
             }
         }
     }
+
     public int FarmLevel
     {
-        get
-        {
-            return farmLevel;
-        }
+        get { return farmLevel; }
         set
         {
-            if (farmLevel != value)
-            {
+            if (farmLevel != value) {
                 farmLevel = value;
                 RefreshSelfOnly();
             }
@@ -377,18 +362,126 @@ public class HexCell : MonoBehaviour
 
     public int PlantLevel
     {
-        get
-        {
-            return plantLevel;
-        }
+        get { return plantLevel; }
         set
         {
-            if (plantLevel != value)
-            {
+            if (plantLevel != value) {
                 plantLevel = value;
                 RefreshSelfOnly();
             }
         }
     }
+
+    public int SpecialIndex
+    {
+        get { return specialIndex; }
+        set
+        {
+            if (specialIndex != value && !HasRiver) {
+                specialIndex = value;
+                RemoveRoads();
+                RefreshSelfOnly();
+            }
+        }
+    }
+
+    public bool IsSpecial
+    {
+        get { return specialIndex > 0; }
+    }
+
+    #endregion
+
+    #region Walls
+
+    public bool Walled
+    {
+        get { return walled; }
+        set
+        {
+            if (walled != value) {
+                walled = value;
+                Refresh();
+            }
+        }
+    }
+
+    bool walled;
+
+    #endregion
+
+    #region Serialization
+
+    public void Save(BinaryWriter writer)
+    {
+        writer.Write((byte) terrainTypeIndex);
+        writer.Write((byte) elevation);
+        writer.Write((byte) waterLevel);
+        writer.Write((byte) urbanLevel);
+        writer.Write((byte) farmLevel);
+        writer.Write((byte) plantLevel);
+        writer.Write((byte) specialIndex);
+        writer.Write(walled);
+
+        if (hasIncomingRiver) {
+            writer.Write((byte) (incomingRiver + 128));
+        } else {
+            writer.Write((byte) 0);
+        }
+
+        if (hasOutgoingRiver) {
+            writer.Write((byte) (outgoingRiver + 128));
+        } else {
+            writer.Write((byte) 0);
+        }
+
+        int roadFlags = 0;
+
+        for (int i = 0; i < roads.Length; i++) {
+            if (roads[i]) {
+                roadFlags |= 1 << i;
+            }
+        }
+
+        writer.Write((byte) roadFlags);
+    }
+
+    public void Load(BinaryReader reader)
+    {
+        terrainTypeIndex = reader.ReadByte();
+        elevation        = reader.ReadByte();
+        RefreshPosition();
+        waterLevel   = reader.ReadByte();
+        urbanLevel   = reader.ReadByte();
+        farmLevel    = reader.ReadByte();
+        plantLevel   = reader.ReadByte();
+        specialIndex = reader.ReadByte();
+        walled       = reader.ReadBoolean();
+
+        byte riverData = reader.ReadByte();
+
+        if (riverData >= 128) {
+            hasIncomingRiver = true;
+            incomingRiver    = (HexDirection) (riverData - 128);
+        } else {
+            hasIncomingRiver = false;
+        }
+
+        riverData = reader.ReadByte();
+
+        if (riverData >= 128) {
+            hasOutgoingRiver = true;
+            outgoingRiver    = (HexDirection) (riverData - 128);
+        } else {
+            hasOutgoingRiver = false;
+        }
+
+        int roadFlags = reader.ReadByte();
+
+        for (int i = 0; i < roads.Length; i++) {
+            roads[i] = (roadFlags & (1 << i)) != 0;
+        }
+    }
+
     #endregion
 }
