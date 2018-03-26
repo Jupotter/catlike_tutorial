@@ -35,6 +35,7 @@ public class SaveLoadMenu : MonoBehaviour
 
     private void Load(string path)
     {
+        StopAllCoroutines();
         if (!File.Exists(path)) {
             Debug.LogError("File does not exist " + path);
 

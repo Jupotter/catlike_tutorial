@@ -1,16 +1,33 @@
 ﻿using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HexCell : MonoBehaviour
 {
-    public HexGridChunk   chunk;
-    int                   terrainTypeIndex;
+    public HexGridChunk chunk;
+
     public HexCoordinates coordinates;
     public RectTransform  uiRect;
 
-    private          int       elevation = int.MinValue;
+    private int terrainTypeIndex;
+    private int distance;
+    private int elevation = int.MinValue;
+
     [SerializeField] HexCell[] neighbors;
+
+    public int Distance
+    {
+        get
+        {
+            return distance;
+        }
+        set
+        {
+            distance = value;
+            UpdateDistanceLabel();
+        }
+    }
 
     public int TerrainTypeIndex
     {
@@ -47,6 +64,11 @@ public class HexCell : MonoBehaviour
         }
     }
 
+    public Vector3 Position
+    {
+        get { return transform.localPosition; }
+    }
+
     private void RefreshPosition()
     {
         Vector3 position = this.transform.localPosition;
@@ -59,12 +81,6 @@ public class HexCell : MonoBehaviour
         uiPosition.z              = -position.y;
         this.uiRect.localPosition = uiPosition;
     }
-
-    public Vector3 Position
-    {
-        get { return transform.localPosition; }
-    }
-
     public HexEdgeType GetEdgeType(HexDirection direction)
     {
         return HexMetrics.GetEdgeType(elevation, neighbors[(int) direction].elevation);
@@ -111,6 +127,12 @@ public class HexCell : MonoBehaviour
         int difference = elevation - GetNeighbor(direction).elevation;
 
         return difference >= 0 ? difference : -difference;
+    }
+
+    void UpdateDistanceLabel()
+    {
+        Text label = uiRect.GetComponent<Text>();
+        label.text = distance == int.MaxValue ? "" : distance.ToString();
     }
 
     #region rivers

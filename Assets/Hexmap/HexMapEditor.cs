@@ -6,7 +6,8 @@ using UnityEngine.EventSystems;
 
 public class HexMapEditor : MonoBehaviour
 {
-    public HexGrid hexGrid;
+    public HexGrid  hexGrid;
+    public Material terrainMaterial;
 
     HexDirection dragDirection;
     bool         isDrag;
@@ -22,6 +23,8 @@ public class HexMapEditor : MonoBehaviour
     private int  brushSize;
 
     private OptionalToggle riverMode, roadMode, walledMode;
+
+    private bool editMode;
 
     enum OptionalToggle
     {
@@ -133,9 +136,20 @@ public class HexMapEditor : MonoBehaviour
     }
 
     [UsedImplicitly]
-    public void ShowUI(bool visible)
+    public void SetEditMode(bool toggle)
     {
-        hexGrid.ShowUI(visible);
+        editMode = toggle;
+        hexGrid.ShowUI(!toggle);
+    }
+
+    [UsedImplicitly]
+    public void ShowGrid(bool visible)
+    {
+        if (visible) {
+            terrainMaterial.EnableKeyword("GRID_ON");
+        } else {
+            terrainMaterial.DisableKeyword("GRID_ON");
+        }
     }
 
     void EditCell(HexCell cell)
@@ -219,6 +233,11 @@ public class HexMapEditor : MonoBehaviour
         }
     }
 
+    void Awake()
+    {
+        terrainMaterial.DisableKeyword("GRID_ON");
+    }
+
     void HandleInput()
     {
         Ray        inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -233,15 +252,24 @@ public class HexMapEditor : MonoBehaviour
                 isDrag = false;
             }
 
-            EditCells(currentCell);
+            if (editMode) {
+                EditCells(currentCell);
+            } else {
+                hexGrid.FindDistancesTo(currentCell);
+            }
+
             previousCell = currentCell;
         }
     }
 
     void Update()
     {
-        if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) {
-            HandleInput();
+        if (Input.GetMouseButton(0)) {
+            if (!EventSystem.current.IsPointerOverGameObject()) {
+                HandleInput();
+            } else {
+                previousCell = null;
+            }
         } else {
             previousCell = null;
         }
