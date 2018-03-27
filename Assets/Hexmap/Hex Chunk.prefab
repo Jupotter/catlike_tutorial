@@ -55,8 +55,7 @@ GameObject:
   - component: {fileID: 224911768611200850}
   - component: {fileID: 223650867606670686}
   - component: {fileID: 114869546116805982}
-  - component: {fileID: 114293673916393822}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -665,22 +664,6 @@ MonoBehaviour:
   useUVCoordinates: 1
   useUV2Coordinates: 0
   useTerrainTypes: 0
---- !u!114 &114293673916393822
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1443645153216834}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1301386320, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &114366296013491768
 MonoBehaviour:
   m_ObjectHideFlags: 1
