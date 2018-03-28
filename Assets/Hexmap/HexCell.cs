@@ -16,17 +16,22 @@ public class HexCell : MonoBehaviour
 
     [SerializeField] HexCell[] neighbors;
 
+    public HexCell PathFrom        { get; set; }
+    public int     SearchHeuristic { get; set; }
+
     public int Distance
     {
-        get
-        {
-            return distance;
-        }
+        get { return distance; }
         set
         {
             distance = value;
             UpdateDistanceLabel();
         }
+    }
+
+    public int SearchPriority
+    {
+        get { return distance + SearchHeuristic; }
     }
 
     public int TerrainTypeIndex
@@ -81,6 +86,7 @@ public class HexCell : MonoBehaviour
         uiPosition.z              = -position.y;
         this.uiRect.localPosition = uiPosition;
     }
+
     public HexEdgeType GetEdgeType(HexDirection direction)
     {
         return HexMetrics.GetEdgeType(elevation, neighbors[(int) direction].elevation);
@@ -133,6 +139,19 @@ public class HexCell : MonoBehaviour
     {
         Text label = uiRect.GetComponent<Text>();
         label.text = distance == int.MaxValue ? "" : distance.ToString();
+    }
+
+    public void DisableHighlight()
+    {
+        Image highlight = uiRect.GetChild(0).GetComponent<Image>();
+        highlight.enabled = false;
+    }
+
+    public void EnableHighlight(Color color)
+    {
+        Image highlight = uiRect.GetChild(0).GetComponent<Image>();
+        highlight.color   = color;
+        highlight.enabled = true;
     }
 
     #region rivers

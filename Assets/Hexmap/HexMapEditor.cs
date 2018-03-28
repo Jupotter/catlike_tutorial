@@ -9,9 +9,9 @@ public class HexMapEditor : MonoBehaviour
     public HexGrid  hexGrid;
     public Material terrainMaterial;
 
-    HexDirection dragDirection;
-    bool         isDrag;
-    HexCell      previousCell;
+    HexDirection    dragDirection;
+    bool            isDrag;
+    private HexCell previousCell, searchFromCell, searchToCell;
 
     private int  activeTerrainTypeIndex;
     private int  activeElevation;
@@ -254,8 +254,20 @@ public class HexMapEditor : MonoBehaviour
 
             if (editMode) {
                 EditCells(currentCell);
-            } else {
-                hexGrid.FindDistancesTo(currentCell);
+            } else if (Input.GetKey(KeyCode.LeftShift) && searchToCell != currentCell) {
+                if (searchFromCell) {
+                    searchFromCell.DisableHighlight();
+                }
+
+                searchFromCell = currentCell;
+                searchFromCell.EnableHighlight(Color.blue);
+
+                if (searchToCell) {
+                    hexGrid.FindPath(searchFromCell, searchToCell);
+                }
+            } else if (searchFromCell && searchFromCell != currentCell) {
+                searchToCell = currentCell;
+                hexGrid.FindPath(searchFromCell, searchToCell);
             }
 
             previousCell = currentCell;
