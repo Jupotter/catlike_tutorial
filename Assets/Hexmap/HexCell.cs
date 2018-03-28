@@ -16,24 +16,6 @@ public class HexCell : MonoBehaviour
 
     [SerializeField] HexCell[] neighbors;
 
-    public HexCell PathFrom        { get; set; }
-    public int     SearchHeuristic { get; set; }
-
-    public int Distance
-    {
-        get { return distance; }
-        set
-        {
-            distance = value;
-            UpdateDistanceLabel();
-        }
-    }
-
-    public int SearchPriority
-    {
-        get { return distance + SearchHeuristic; }
-    }
-
     public int TerrainTypeIndex
     {
         get { return terrainTypeIndex; }
@@ -517,6 +499,29 @@ public class HexCell : MonoBehaviour
         for (int i = 0; i < roads.Length; i++) {
             roads[i] = (roadFlags & (1 << i)) != 0;
         }
+    }
+
+    #endregion
+
+    #region Pathfinding
+
+    public HexCell PathFrom             { get; set; }
+    public int     SearchHeuristic      { get; set; }
+    public HexCell NextWithSamePriority { get; set; }
+
+    public int Distance
+    {
+        get { return distance; }
+        set
+        {
+            distance = value;
+            UpdateDistanceLabel();
+        }
+    }
+
+    public int SearchPriority
+    {
+        get { return distance + SearchHeuristic; }
     }
 
     #endregion
