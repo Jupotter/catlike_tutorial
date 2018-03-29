@@ -16,6 +16,8 @@ public class HexCell : MonoBehaviour
 
     [SerializeField] HexCell[] neighbors;
 
+    public HexUnit Unit { get; set; }
+
     public int TerrainTypeIndex
     {
         get { return terrainTypeIndex; }
@@ -102,12 +104,20 @@ public class HexCell : MonoBehaviour
                     neighbor.chunk.Refresh();
                 }
             }
+
+            if (Unit) {
+                Unit.ValidateLocation();
+            }
         }
     }
 
     void RefreshSelfOnly()
     {
         chunk.Refresh();
+
+        if (Unit) {
+            Unit.ValidateLocation();
+        }
     }
 
     public int GetElevationDifference(HexDirection direction)

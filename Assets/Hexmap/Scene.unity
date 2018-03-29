@@ -4381,6 +4381,8 @@ MonoBehaviour:
   chunkPrefab: {fileID: 114014256526602592, guid: 227d0c84b9c4ed3499f3f9639644790d,
     type: 2}
   noiseSource: {fileID: 2800000, guid: e71af9c0bc8e4f043b87c5a07bfd9dda, type: 3}
+  unitPrefab: {fileID: 114645753732425216, guid: 0d3ad7fb0cef8974fa17cb4126939de5,
+    type: 2}
   seed: 1906
 --- !u!4 &676237196
 Transform:
@@ -12562,6 +12564,12 @@ Prefab:
       propertyPath: cellCountZ
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 114583535904516400, guid: a5878eb200c2f8a49aa02a277d9058bf,
+        type: 2}
+      propertyPath: unitPrefab
+      value: 
+      objectReference: {fileID: 114645753732425216, guid: 0d3ad7fb0cef8974fa17cb4126939de5,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a5878eb200c2f8a49aa02a277d9058bf, type: 2}
   m_IsPrefabParent: 0

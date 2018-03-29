@@ -3,6 +3,7 @@ using System.IO;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 public class HexMapEditor : MonoBehaviour
 {
@@ -238,14 +239,41 @@ public class HexMapEditor : MonoBehaviour
         terrainMaterial.DisableKeyword("GRID_ON");
     }
 
-    void HandleInput()
+    void CreateUnit()
+    {
+        HexCell cell = GetCellUnderCursor();
+
+        if (cell && !cell.Unit) {
+            hexGrid.AddUnit(Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f));
+        }
+    }
+
+    void DestroyUnit()
+    {
+        HexCell cell = GetCellUnderCursor();
+
+        if (cell && cell.Unit) {
+            hexGrid.RemoveUnit(cell.Unit);
+        }
+    }
+
+    private HexCell GetCellUnderCursor()
     {
         Ray        inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(inputRay, out hit)) {
-            HexCell currentCell = hexGrid.GetCell(hit.point);
+            return hexGrid.GetCell(hit.point);
+        }
 
+        return null;
+    }
+
+    void HandleInput()
+    {
+        HexCell currentCell = GetCellUnderCursor();
+
+        if (currentCell) {
             if (previousCell && currentCell != previousCell) {
                 ValidateDrag(currentCell);
             } else {
@@ -261,12 +289,12 @@ public class HexMapEditor : MonoBehaviour
                     }
 
                     searchFromCell = currentCell;
-                        searchFromCell.EnableHighlight(Color.blue);
+                    searchFromCell.EnableHighlight(Color.blue);
 
-                        if (searchToCell) {
-                            hexGrid.FindPath(searchFromCell, searchToCell, 24);
-                        }
+                    if (searchToCell) {
+                        hexGrid.FindPath(searchFromCell, searchToCell, 24);
                     }
+                }
             } else if (searchFromCell && searchFromCell != currentCell) {
                 if (searchToCell != currentCell) {
                     searchToCell = currentCell;
@@ -280,15 +308,25 @@ public class HexMapEditor : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButton(0)) {
-            if (!EventSystem.current.IsPointerOverGameObject()) {
+        if (!EventSystem.current.IsPointerOverGameObject()) {
+            if (Input.GetMouseButton(0)) {
                 HandleInput();
-            } else {
-                previousCell = null;
+
+                return;
             }
-        } else {
-            previousCell = null;
+
+            if (Input.GetKeyDown(KeyCode.U)) {
+                if (Input.GetKey(KeyCode.LeftShift)) {
+                    DestroyUnit();
+                } else {
+                    CreateUnit();
+                }
+
+                return;
+            }
         }
+
+        previousCell = null;
     }
 
     private void ValidateDrag(HexCell currentCell)

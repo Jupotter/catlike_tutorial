@@ -28,7 +28,7 @@ public class SaveLoadMenu : MonoBehaviour
     private void Save(string path)
     {
         using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create))) {
-            writer.Write(1);
+            writer.Write(2);
             hexGrid.Save(writer);
         }
     }
@@ -45,7 +45,7 @@ public class SaveLoadMenu : MonoBehaviour
         using (BinaryReader reader = new BinaryReader(File.OpenRead(path))) {
             int header = reader.ReadInt32();
 
-            if (header <= 1) {
+            if (header <= 2) {
                 hexGrid.Load(reader, header);
                 HexMapCamera.ValidatePosition();
             } else {
