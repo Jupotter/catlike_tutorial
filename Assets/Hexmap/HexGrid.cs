@@ -8,16 +8,17 @@ using Debug = UnityEngine.Debug;
 
 public class HexGrid : MonoBehaviour
 {
-    private int chunkCountX, chunkCountZ;
-    private HexCell[] cells;
+    private int            chunkCountX, chunkCountZ;
+    private HexCell[]      cells;
     private HexGridChunk[] chunks;
-    public Text cellLabelPrefab;
-    public HexCell      cellPrefab;
-    public int          cellCountX = 20, cellCountZ = 15;
-    public HexGridChunk chunkPrefab;
-    public Texture2D    noiseSource;
-    public HexUnit      unitPrefab;
-    public int          seed;
+    public  Text           cellLabelPrefab;
+    public  HexCell        cellPrefab;
+    public  int            cellCountX = 20, cellCountZ = 15;
+    public  HexGridChunk   chunkPrefab;
+    public  Texture2D      noiseSource;
+    public  HexUnit        unitPrefab;
+    public  int            seed;
+
     private void Awake()
     {
         HexMetrics.noiseSource = this.noiseSource;
@@ -36,30 +37,23 @@ public class HexGrid : MonoBehaviour
 
         var cell = this.cells[i] = Instantiate(this.cellPrefab);
         cell.transform.localPosition = position;
-        cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
+        cell.coordinates             = HexCoordinates.FromOffsetCoordinates(x, z);
 
-        if (x > 0)
-        {
+        if (x > 0) {
             cell.SetNeighbor(HexDirection.W, this.cells[i - 1]);
         }
 
-        if (z > 0)
-        {
-            if ((z & 1) == 0)
-            {
+        if (z > 0) {
+            if ((z & 1) == 0) {
                 cell.SetNeighbor(HexDirection.SE, this.cells[i - this.cellCountX]);
 
-                if (x > 0)
-                {
+                if (x > 0) {
                     cell.SetNeighbor(HexDirection.SW, this.cells[i - this.cellCountX - 1]);
                 }
-            }
-            else
-            {
+            } else {
                 cell.SetNeighbor(HexDirection.SW, this.cells[i - this.cellCountX]);
 
-                if (x < this.cellCountX - 1)
-                {
+                if (x < this.cellCountX - 1) {
                     cell.SetNeighbor(HexDirection.SE, this.cells[i - this.cellCountX + 1]);
                 }
             }
@@ -67,7 +61,7 @@ public class HexGrid : MonoBehaviour
 
         var label = Instantiate(this.cellLabelPrefab);
         label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
-        cell.uiRect = label.rectTransform;
+        cell.uiRect                          = label.rectTransform;
 
         cell.Elevation = 0;
 
@@ -91,10 +85,8 @@ public class HexGrid : MonoBehaviour
     {
         this.cells = new HexCell[this.cellCountZ * this.cellCountX];
 
-        for (int z = 0, i = 0; z < this.cellCountZ; z++)
-        {
-            for (var x = 0; x < this.cellCountX; x++)
-            {
+        for (int z = 0, i = 0; z < this.cellCountZ; z++) {
+            for (var x = 0; x < this.cellCountX; x++) {
                 CreateCell(x, z, i++);
             }
         }
@@ -104,10 +96,8 @@ public class HexGrid : MonoBehaviour
     {
         this.chunks = new HexGridChunk[this.chunkCountX * this.chunkCountZ];
 
-        for (int z = 0, i = 0; z < this.chunkCountZ; z++)
-        {
-            for (var x = 0; x < this.chunkCountX; x++)
-            {
+        for (int z = 0, i = 0; z < this.chunkCountZ; z++) {
+            for (var x = 0; x < this.chunkCountX; x++) {
                 var chunk = this.chunks[i++] = Instantiate(this.chunkPrefab);
                 chunk.transform.SetParent(this.transform);
             }
@@ -116,8 +106,7 @@ public class HexGrid : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!HexMetrics.noiseSource)
-        {
+        if (!HexMetrics.noiseSource) {
             HexMetrics.noiseSource = this.noiseSource;
             HexMetrics.InitializeHashGrid(this.seed);
             HexUnit.unitPrefab = this.unitPrefab;
@@ -132,6 +121,7 @@ public class HexGrid : MonoBehaviour
 
         return this.cells[index];
     }
+
     [UsedImplicitly]
     public bool CreateMap(int x, int z)
     {
@@ -160,6 +150,7 @@ public class HexGrid : MonoBehaviour
 
         return true;
     }
+
     public HexCell GetCell(Ray ray)
     {
         RaycastHit hit;
@@ -187,6 +178,7 @@ public class HexGrid : MonoBehaviour
 
         return this.cells[x + z * this.cellCountX];
     }
+
     public void ShowUI(bool visible)
     {
         for (var i = 0; i < this.chunks.Length; i++) {
@@ -204,13 +196,11 @@ public class HexGrid : MonoBehaviour
 
     private void ShowPath(int speed)
     {
-        if (this.HasPath)
-        {
+        if (this.HasPath) {
             var current = this.currentPathTo;
 
-            while (current != this.currentPathFrom)
-            {
-                var turn = current.Distance / speed;
+            while (current != this.currentPathFrom) {
+                var turn = (current.Distance - 1) / speed;
                 current.SetLabel(turn.ToString());
                 current.EnableHighlight(Color.white);
                 current = current.PathFrom;
@@ -225,87 +215,69 @@ public class HexGrid : MonoBehaviour
     {
         this.searchFrontierPhase += 2;
 
-        if (this.searchFrontier == null)
-        {
+        if (this.searchFrontier == null) {
             this.searchFrontier = new HexCellPriorityQueue();
-        }
-        else
-        {
+        } else {
             this.searchFrontier.Clear();
         }
 
         fromCell.EnableHighlight(Color.blue);
         fromCell.SearchPhase = this.searchFrontierPhase;
-        fromCell.Distance = 0;
+        fromCell.Distance    = 0;
         this.searchFrontier.Enqueue(fromCell);
 
-        while (this.searchFrontier.Count > 0)
-        {
+        while (this.searchFrontier.Count > 0) {
             var current = this.searchFrontier.Dequeue();
             current.SearchPhase += 1;
 
-            if (current == toCell)
-            {
+            if (current == toCell) {
                 return true;
             }
 
             var currentTurn = (current.Distance - 1) / speed;
 
-            for (var d = HexDirection.NE; d <= HexDirection.NW; d++)
-            {
+            for (var d = HexDirection.NE; d <= HexDirection.NW; d++) {
                 var neighbor = current.GetNeighbor(d);
 
-                if ((neighbor == null) || (neighbor.SearchPhase > this.searchFrontierPhase) || neighbor.Unit)
-                {
+                if ((neighbor == null) || (neighbor.SearchPhase > this.searchFrontierPhase) || neighbor.Unit) {
                     continue;
                 }
 
-                if (neighbor.IsUnderwater)
-                {
+                if (neighbor.IsUnderwater) {
                     continue;
                 }
 
                 var edgeType = current.GetEdgeType(neighbor);
 
-                if (edgeType == HexEdgeType.Cliff)
-                {
+                if (edgeType == HexEdgeType.Cliff) {
                     continue;
                 }
 
                 int moveCost;
 
-                if (current.HasRoadThroughEdge(d))
-                {
+                if (current.HasRoadThroughEdge(d)) {
                     moveCost = 1;
-                }
-                else if (current.Walled != neighbor.Walled)
-                {
+                } else if (current.Walled != neighbor.Walled) {
                     continue;
-                }
-                else
-                {
-                    moveCost = edgeType == HexEdgeType.Flat ? 5 : 10;
+                } else {
+                    moveCost =  edgeType == HexEdgeType.Flat ? 5 : 10;
                     moveCost += neighbor.UrbanLevel + neighbor.FarmLevel + neighbor.PlantLevel;
                 }
 
                 var distance = current.Distance + moveCost;
-                var turn = (distance-1) / speed;
+                var turn     = (distance - 1) / speed;
 
-                if (turn > currentTurn)
-                {
+                if (turn > currentTurn) {
                     distance = turn * speed + moveCost;
                 }
 
-                if (neighbor.SearchPhase < this.searchFrontierPhase)
-                {
-                    neighbor.SearchPhase = this.searchFrontierPhase;
-                    neighbor.Distance = distance;
-                    neighbor.PathFrom = current;
+                if (neighbor.SearchPhase < this.searchFrontierPhase) {
+                    neighbor.SearchPhase     = this.searchFrontierPhase;
+                    neighbor.Distance        = distance;
+                    neighbor.PathFrom        = current;
                     neighbor.SearchHeuristic = neighbor.coordinates.DistanceTo(toCell.coordinates);
                     this.searchFrontier.Enqueue(neighbor);
-                }
-                else if (distance < neighbor.Distance)
-                {
+                } else if (distance < neighbor.Distance) {
                     var oldPriority = neighbor.SearchPriority;
                     neighbor.Distance = distance;
                     neighbor.PathFrom = current;
@@ -349,6 +321,24 @@ public class HexGrid : MonoBehaviour
 
         this.currentPathFrom = this.currentPathTo = null;
     }
+
+    public List<HexCell> GetPath()
+    {
+        if (!HasPath) {
+            return null;
+        }
+
+        List<HexCell> path = ListPool<HexCell>.Get();
+
+        for (HexCell c = currentPathTo; c != currentPathFrom; c = c.PathFrom) {
+            path.Add(c);
+        }
+        path.Add(currentPathFrom);
+        path.Reverse();
+
+        return path;
+    }
+
     #endregion
 
     #region Serialization
