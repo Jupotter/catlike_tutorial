@@ -3,18 +3,21 @@ using UnityEngine;
 
 public class HexUnit : MonoBehaviour
 {
+    private       float   orientation;
+    private       HexCell location;
     public static HexUnit unitPrefab;
-
-    private float orientation;
-    private HexCell location;
 
     public HexCell Location
     {
         get { return location; }
         set
         {
+            if (location) {
+                location.Unit = null;
+            }
+
             location                = value;
-            value.Unit = this;
+            value.Unit              = this;
             transform.localPosition = value.Position;
         }
     }
@@ -29,9 +32,21 @@ public class HexUnit : MonoBehaviour
         }
     }
 
+    public static void Load(BinaryReader reader, HexGrid grid)
+    {
+        HexCoordinates coordinates = HexCoordinates.Load(reader);
+        float          orientation = reader.ReadSingle();
+        grid.AddUnit(Instantiate(unitPrefab), grid.GetCell(coordinates), orientation);
+    }
+
     public void ValidateLocation()
     {
         transform.localPosition = location.Position;
+    }
+
+    public bool IsValidDestination(HexCell cell)
+    {
+        return !cell.IsUnderwater && !cell.Unit;
     }
 
     public void Die()
@@ -44,14 +59,5 @@ public class HexUnit : MonoBehaviour
     {
         location.coordinates.Save(writer);
         writer.Write(orientation);
-    }
-
-    public static void Load(BinaryReader reader, HexGrid grid)
-    {
-        HexCoordinates coordinates = HexCoordinates.Load(reader);
-        float          orientation = reader.ReadSingle();
-        grid.AddUnit(
-            Instantiate(unitPrefab), grid.GetCell(coordinates), orientation
-        );
     }
 }
