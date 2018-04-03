@@ -113,50 +113,6 @@ public class HexUnit : MonoBehaviour
         }
     }
 
-    void OnDrawGizmos()
-    {
-        if (pathToTravel == null || pathToTravel.Count == 0) {
-            return;
-        }
-
-        Gizmos.color = Color.blue;
-
-        Vector3 a, b, c = pathToTravel[0].Position + Vector3.up;
-
-        Vector3 start;
-        Vector3 end;
-
-        for (int i = 1; i < pathToTravel.Count; i++) {
-            a = c;
-            b = pathToTravel[i - 1].Position          + Vector3.up;
-            c = (b + pathToTravel[i].Position) * 0.5f + Vector3.up;
-
-            start = a;
-            end   = b;
-
-            for (float t = 0f; t < 1f; t += 0.1f) {
-                end = Bezier.GetPoint(a, b, c, t);
-                Gizmos.DrawLine(start, end);
-                start = end;
-            }
-
-            Gizmos.DrawLine(end, c);
-        }
-
-        a     = c;
-        b     = pathToTravel[pathToTravel.Count - 1].Position + Vector3.up;
-        start = a;
-        end   = b;
-
-        for (float t = 0f; t < 1f; t += 0.1f) {
-            end = Bezier.GetPoint(a, b, c, t);
-            Gizmos.DrawLine(start, end);
-            start = end;
-        }
-
-        Gizmos.DrawLine(end, b);
-    }
-
     public void Die()
     {
         location.Unit = null;
