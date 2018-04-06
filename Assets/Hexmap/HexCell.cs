@@ -13,6 +13,7 @@ public class HexCell : MonoBehaviour
     private int terrainTypeIndex;
     private int distance;
     private int elevation = int.MinValue;
+    private int visibility;
 
     [SerializeField] HexCell[] neighbors;
 
@@ -58,6 +59,11 @@ public class HexCell : MonoBehaviour
     public Vector3 Position
     {
         get { return transform.localPosition; }
+    }
+
+    public bool IsVisible
+    {
+        get { return visibility > 0; }
     }
 
     private void RefreshPosition()
@@ -532,6 +538,28 @@ public class HexCell : MonoBehaviour
     public int SearchPriority
     {
         get { return distance + SearchHeuristic; }
+    }
+
+    #endregion
+
+    #region visibility
+
+    public void IncreaseVisibility()
+    {
+        visibility += 1;
+
+        if (visibility == 1) {
+            ShaderData.RefreshVisibility(this);
+        }
+    }
+
+    public void DecreaseVisibility()
+    {
+        visibility -= 1;
+
+        if (visibility == 0) {
+            ShaderData.RefreshVisibility(this);
+        }
     }
 
     #endregion

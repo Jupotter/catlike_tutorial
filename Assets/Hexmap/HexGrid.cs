@@ -43,7 +43,7 @@ public class HexGrid : MonoBehaviour
         cell.transform.localPosition = position;
 
         cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
-        cell.Index = i;
+        cell.Index       = i;
         cell.ShaderData  = cellShaderData;
 
         if (x > 0) {
@@ -421,6 +421,7 @@ public class HexGrid : MonoBehaviour
     {
         this.units.Add(unit);
         unit.transform.SetParent(this.transform, false);
+        unit.Grid        = this;
         unit.Location    = location;
         unit.Orientation = orientation;
     }
@@ -429,6 +430,81 @@ public class HexGrid : MonoBehaviour
     {
         this.units.Remove(unit);
         unit.Die();
+    }
+
+    #endregion
+
+    #region Visibility
+
+    List<HexCell> GetVisibleCells(HexCell fromCell, int range)
+    {
+        List<HexCell> visibleCells = ListPool<HexCell>.Get();
+        this.searchFrontierPhase += 2;
+
+        if (this.searchFrontier == null) {
+            this.searchFrontier = new HexCellPriorityQueue();
+        } else {
+            this.searchFrontier.Clear();
+        }
+        
+        fromCell.SearchPhase = this.searchFrontierPhase;
+        fromCell.Distance    = 0;
+        this.searchFrontier.Enqueue(fromCell);
+
+        while (this.searchFrontier.Count > 0) {
+            var current = this.searchFrontier.Dequeue();
+            current.SearchPhase += 1;
+            visibleCells.Add(current);
+
+            for (var d = HexDirection.NE; d <= HexDirection.NW; d++) {
+                var neighbor = current.GetNeighbor(d);
+
+                if ((neighbor == null) || (neighbor.SearchPhase > this.searchFrontierPhase)) {
+                    continue;
+                }
+
+                var distance = current.Distance + 1;
+
+                if (distance > range) {
+                    continue;
+                }
+
+                if (neighbor.SearchPhase < this.searchFrontierPhase) {
+                    neighbor.SearchPhase     = this.searchFrontierPhase;
+                    neighbor.Distance        = distance;
+                    neighbor.SearchHeuristic = 0;
+                    this.searchFrontier.Enqueue(neighbor);
+                } else if (distance < neighbor.Distance) {
+                    var oldPriority = neighbor.SearchPriority;
+                    neighbor.Distance = distance;
+                    this.searchFrontier.Change(neighbor, oldPriority);
+                }
+            }
+        }
+
+        return visibleCells;
+    }
+
+    public void IncreaseVisibility(HexCell fromCell, int range)
+    {
+        List<HexCell> cells = GetVisibleCells(fromCell, range);
+
+        for (int i = 0; i < cells.Count; i++) {
+            cells[i].IncreaseVisibility();
+        }
+
+        ListPool<HexCell>.Add(cells);
+    }
+
+    public void DecreaseVisibility(HexCell fromCell, int range)
+    {
+        List<HexCell> cells = GetVisibleCells(fromCell, range);
+
+        for (int i = 0; i < cells.Count; i++) {
+            cells[i].DecreaseVisibility();
+        }
+
+        ListPool<HexCell>.Add(cells);
     }
 
     #endregion
