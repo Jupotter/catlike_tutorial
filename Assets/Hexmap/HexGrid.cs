@@ -8,22 +8,26 @@ using Debug = UnityEngine.Debug;
 
 public class HexGrid : MonoBehaviour
 {
-    private int            chunkCountX, chunkCountZ;
-    private HexCell[]      cells;
-    private HexGridChunk[] chunks;
-    public  Text           cellLabelPrefab;
-    public  HexCell        cellPrefab;
-    public  int            cellCountX = 20, cellCountZ = 15;
-    public  HexGridChunk   chunkPrefab;
-    public  Texture2D      noiseSource;
-    public  HexUnit        unitPrefab;
-    public  int            seed;
+    private int               chunkCountX, chunkCountZ;
+    private HexCell[]         cells;
+    private HexGridChunk[]    chunks;
+    private HexCellShaderData cellShaderData;
+
+    public Text         cellLabelPrefab;
+    public HexCell      cellPrefab;
+    public int          cellCountX = 20, cellCountZ = 15;
+    public HexGridChunk chunkPrefab;
+    public Texture2D    noiseSource;
+    public HexUnit      unitPrefab;
+    public int          seed;
 
     private void Awake()
     {
         HexMetrics.noiseSource = this.noiseSource;
         HexMetrics.InitializeHashGrid(this.seed);
         HexUnit.unitPrefab = this.unitPrefab;
+
+        cellShaderData = gameObject.AddComponent<HexCellShaderData>();
 
         CreateMap(this.cellCountX, this.cellCountZ);
     }
@@ -37,7 +41,10 @@ public class HexGrid : MonoBehaviour
 
         var cell = this.cells[i] = Instantiate(this.cellPrefab);
         cell.transform.localPosition = position;
-        cell.coordinates             = HexCoordinates.FromOffsetCoordinates(x, z);
+
+        cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
+        cell.Index = i;
+        cell.ShaderData  = cellShaderData;
 
         if (x > 0) {
             cell.SetNeighbor(HexDirection.W, this.cells[i - 1]);
@@ -144,6 +151,7 @@ public class HexGrid : MonoBehaviour
         this.cellCountZ  = z;
         this.chunkCountX = this.cellCountX / HexMetrics.chunkSizeX;
         this.chunkCountZ = this.cellCountZ / HexMetrics.chunkSizeZ;
+        cellShaderData.Initialize(cellCountX, cellCountZ);
 
         CreateChunks();
         CreateCells();
@@ -333,6 +341,7 @@ public class HexGrid : MonoBehaviour
         for (HexCell c = currentPathTo; c != currentPathFrom; c = c.PathFrom) {
             path.Add(c);
         }
+
         path.Add(currentPathFrom);
         path.Reverse();
 

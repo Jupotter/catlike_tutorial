@@ -16,7 +16,9 @@ public class HexCell : MonoBehaviour
 
     [SerializeField] HexCell[] neighbors;
 
-    public HexUnit Unit { get; set; }
+    public HexUnit           Unit       { get; set; }
+    public HexCellShaderData ShaderData { get; set; }
+    public int               Index      { get; set; }
 
     public int TerrainTypeIndex
     {
@@ -25,7 +27,7 @@ public class HexCell : MonoBehaviour
         {
             if (terrainTypeIndex != value) {
                 terrainTypeIndex = value;
-                Refresh();
+                ShaderData.RefreshTerrain(this);
             }
         }
     }
@@ -477,7 +479,8 @@ public class HexCell : MonoBehaviour
     public void Load(BinaryReader reader)
     {
         terrainTypeIndex = reader.ReadByte();
-        elevation        = reader.ReadByte();
+        ShaderData.RefreshTerrain(this);
+        elevation = reader.ReadByte();
         RefreshPosition();
         waterLevel   = reader.ReadByte();
         urbanLevel   = reader.ReadByte();
