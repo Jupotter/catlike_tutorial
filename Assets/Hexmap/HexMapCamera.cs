@@ -19,12 +19,13 @@ public class HexMapCamera : MonoBehaviour
 
     public static bool Locked
     {
-        set { instance.enabled = !value; }
+        set { if (instance != null) instance.enabled = !value; }
     }
 
     public static void ValidatePosition()
     {
-        instance.AdjustPosition(0f, 0f);
+        if (instance != null)
+            instance.AdjustPosition(0f, 0f);
     }
 
     void Awake()
