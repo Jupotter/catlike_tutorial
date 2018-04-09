@@ -219,8 +219,9 @@ public class HexGrid : MonoBehaviour
         this.currentPathTo.EnableHighlight(Color.red);
     }
 
-    private bool Search(HexCell fromCell, HexCell toCell, int speed)
+    private bool Search(HexCell fromCell, HexCell toCell, HexUnit unit)
     {
+        int speed = unit.Speed;
         this.searchFrontierPhase += 2;
 
         if (this.searchFrontier == null) {
@@ -251,25 +252,14 @@ public class HexGrid : MonoBehaviour
                     continue;
                 }
 
-                if (neighbor.IsUnderwater) {
+                if (!unit.IsValidDestination(neighbor)) {
                     continue;
                 }
 
-                var edgeType = current.GetEdgeType(neighbor);
+                int moveCost = unit.GetMoveCost(current, neighbor, d);
 
-                if (edgeType == HexEdgeType.Cliff) {
+                if (moveCost < 0) {
                     continue;
-                }
-
-                int moveCost;
-
-                if (current.HasRoadThroughEdge(d)) {
-                    moveCost = 1;
-                } else if (current.Walled != neighbor.Walled) {
-                    continue;
-                } else {
-                    moveCost =  edgeType == HexEdgeType.Flat ? 5 : 10;
-                    moveCost += neighbor.UrbanLevel + neighbor.FarmLevel + neighbor.PlantLevel;
                 }
 
                 var distance = current.Distance + moveCost;
@@ -297,7 +287,7 @@ public class HexGrid : MonoBehaviour
         return false;
     }
 
-    public void FindPath(HexCell fromCell, HexCell toCell, int speed)
+    public void FindPath(HexCell fromCell, HexCell toCell, HexUnit unit)
     {
         var sw = new Stopwatch();
         sw.Start();
@@ -305,8 +295,8 @@ public class HexGrid : MonoBehaviour
         ClearPath();
         this.currentPathFrom = fromCell;
         this.currentPathTo   = toCell;
-        this.HasPath         = Search(fromCell, toCell, speed);
-        ShowPath(speed);
+        this.HasPath         = Search(fromCell, toCell, unit);
+        ShowPath(unit.Speed);
 
         sw.Stop();
         Debug.Log(sw.ElapsedMilliseconds);
@@ -446,7 +436,7 @@ public class HexGrid : MonoBehaviour
         } else {
             this.searchFrontier.Clear();
         }
-        
+
         fromCell.SearchPhase = this.searchFrontierPhase;
         fromCell.Distance    = 0;
         this.searchFrontier.Enqueue(fromCell);
