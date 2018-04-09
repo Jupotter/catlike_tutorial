@@ -375,6 +375,9 @@ public class HexGrid : MonoBehaviour
             }
         }
 
+        bool originalImmediateMode = cellShaderData.ImmediateMode;
+        cellShaderData.ImmediateMode = true;
+
         foreach (var c in this.cells) {
             c.Load(reader, header);
         }
@@ -390,6 +393,8 @@ public class HexGrid : MonoBehaviour
                 HexUnit.Load(reader, this);
             }
         }
+
+        cellShaderData.ImmediateMode = originalImmediateMode;
     }
 
     #endregion
