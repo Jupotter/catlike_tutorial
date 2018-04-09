@@ -15,6 +15,7 @@
         #pragma target 3.5
 
         #pragma multi_compile _ GRID_ON
+        #pragma multi_compile _ HEX_MAP_EDIT_MODE
 
         #include "HexCellData.cginc"
 
@@ -25,7 +26,7 @@
             float4 color : COLOR;
             float3 worldPos;
             float3 terrain;
-            float3 visibility;
+            float4 visibility;
         };
 
         half _Glossiness;
@@ -49,7 +50,8 @@
             data.visibility.x = cell0.x;
             data.visibility.y = cell1.x;
             data.visibility.z = cell2.x;
-            data.visibility = lerp(0.25, 1, data.visibility);
+            data.visibility.xyz = lerp(0.25, 1, data.visibility.xyz);
+			data.visibility.w = cell0.y * v.color.x + cell1.y * v.color.y + cell2.y * v.color.z;
         }
 
         float4 GetTerrainColor(Input IN, int index)
@@ -72,8 +74,9 @@
                 gridUV.y *= 1 / (2 * 15.0);
                 grid = tex2D(_GridTex, gridUV);
             #endif
-
-            o.Albedo = c.rgb * grid * _Color;
+						
+			float explored = IN.visibility.w;
+			o.Albedo = c.rgb * grid * _Color * explored;
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = c.a;

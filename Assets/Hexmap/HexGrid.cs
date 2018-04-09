@@ -386,7 +386,7 @@ public class HexGrid : MonoBehaviour
         }
 
         foreach (var c in this.cells) {
-            c.Load(reader);
+            c.Load(reader, header);
         }
 
         foreach (var c in this.chunks) {

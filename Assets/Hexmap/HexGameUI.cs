@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using JetBrains.Annotations;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class HexGameUI : MonoBehaviour
@@ -63,9 +64,16 @@ public class HexGameUI : MonoBehaviour
         }
     }
 
+    [UsedImplicitly]
     public void SetEditMode(bool toggle)
     {
         this.enabled = !toggle;
         this.grid.ShowUI(!toggle);
+
+        if (toggle) {
+            Shader.EnableKeyword("HEX_MAP_EDIT_MODE");
+        } else {
+            Shader.DisableKeyword("HEX_MAP_EDIT_MODE");
+        }
     }
 }

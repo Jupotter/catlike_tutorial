@@ -25,10 +25,7 @@ public class HexCellShaderData : MonoBehaviour
             Shader.SetGlobalTexture("_HexCellData", cellTexture);
         }
 
-        Shader.SetGlobalVector(
-            "_HexCellData_TexelSize",
-            new Vector4(1f / x, 1f / z, x, z)
-        );
+        Shader.SetGlobalVector("_HexCellData_TexelSize", new Vector4(1f / x, 1f / z, x, z));
 
         if (cellTextureData == null || cellTextureData.Length != x * z) {
             cellTextureData = new Color32[x * z];
@@ -37,7 +34,6 @@ public class HexCellShaderData : MonoBehaviour
                 cellTextureData[i] = new Color32(0, 0, 0, 0);
             }
         }
-
 
         enabled = true;
     }
@@ -50,7 +46,9 @@ public class HexCellShaderData : MonoBehaviour
 
     public void RefreshVisibility(HexCell cell)
     {
-        cellTextureData[cell.Index].r = cell.IsVisible ? (byte)255 : (byte)0;
-        enabled                       = true;
+        var index = cell.Index;
+        cellTextureData[index].r = cell.IsVisible ? (byte) 255 : (byte) 0;
+        cellTextureData[index].g = cell.IsExplored ? (byte) 255 : (byte) 0;
+        enabled                  = true;
     }
 }

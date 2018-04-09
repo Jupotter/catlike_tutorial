@@ -6,14 +6,15 @@ using UnityEngine.UI;
 
 public class SaveLoadMenu : MonoBehaviour
 {
-    private bool       saveMode;
+    private const int mapFileVersion = 3;
+
+    private bool saveMode;
     public  HexGrid    hexGrid;
     public  Text       menuLabel, actionButtonLabel;
     public  InputField nameInput;
 
     public RectTransform listContent;
     public SaveLoadItem  itemPrefab;
-
     string GetSelectedPath()
     {
         string mapName = nameInput.text;
@@ -28,7 +29,7 @@ public class SaveLoadMenu : MonoBehaviour
     private void Save(string path)
     {
         using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create))) {
-            writer.Write(2);
+            writer.Write(mapFileVersion);
             hexGrid.Save(writer);
         }
     }
@@ -45,7 +46,7 @@ public class SaveLoadMenu : MonoBehaviour
         using (BinaryReader reader = new BinaryReader(File.OpenRead(path))) {
             int header = reader.ReadInt32();
 
-            if (header <= 2) {
+            if (header <= mapFileVersion) {
                 hexGrid.Load(reader, header);
                 HexMapCamera.ValidatePosition();
             } else {
