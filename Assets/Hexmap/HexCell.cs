@@ -17,10 +17,18 @@ public class HexCell : MonoBehaviour
 
     [SerializeField] HexCell[] neighbors;
 
-    public HexUnit           Unit       { get; set; }
+    bool walled;
+    private bool explored;
+    public HexUnit Unit { get; set; }
     public HexCellShaderData ShaderData { get; set; }
     public int               Index      { get; set; }
-    public bool              IsExplored { get; private set; }
+    public bool              Explorable { get; set; }
+
+    public bool IsExplored
+    {
+        get { return this.explored && Explorable; }
+        private set { this.explored = value; }
+    }
 
     public int TerrainTypeIndex
     {
@@ -43,7 +51,13 @@ public class HexCell : MonoBehaviour
                 return;
             }
 
-            this.elevation = value;
+            int originalViewElevation = ViewElevation;
+            elevation = value;
+
+            if (ViewElevation != originalViewElevation) {
+                ShaderData.ViewElevationChanged();
+            }
+
             RefreshPosition();
             ValidateRivers();
 
@@ -57,6 +71,11 @@ public class HexCell : MonoBehaviour
         }
     }
 
+    public int ViewElevation
+    {
+        get { return elevation >= waterLevel ? elevation : waterLevel; }
+    }
+
     public Vector3 Position
     {
         get { return transform.localPosition; }
@@ -64,7 +83,19 @@ public class HexCell : MonoBehaviour
 
     public bool IsVisible
     {
-        get { return visibility > 0; }
+        get { return visibility > 0 && Explorable; }
+    }
+
+    public bool Walled
+    {
+        get { return walled; }
+        set
+        {
+            if (walled != value) {
+                walled = value;
+                Refresh();
+            }
+        }
     }
 
     private void RefreshPosition()
@@ -350,7 +381,13 @@ public class HexCell : MonoBehaviour
                 return;
             }
 
+            int originalViewElevation = ViewElevation;
             waterLevel = value;
+
+            if (ViewElevation != originalViewElevation) {
+                ShaderData.ViewElevationChanged();
+            }
+
             ValidateRivers();
             Refresh();
         }
@@ -426,24 +463,6 @@ public class HexCell : MonoBehaviour
     {
         get { return specialIndex > 0; }
     }
-
-    #endregion
-
-    #region Walls
-
-    public bool Walled
-    {
-        get { return walled; }
-        set
-        {
-            if (walled != value) {
-                walled = value;
-                Refresh();
-            }
-        }
-    }
-
-    bool walled;
 
     #endregion
 
@@ -564,6 +583,14 @@ public class HexCell : MonoBehaviour
         visibility -= 1;
 
         if (visibility == 0) {
+            ShaderData.RefreshVisibility(this);
+        }
+    }
+
+    public void ResetVisibility()
+    {
+        if (visibility > 0) {
+            visibility = 0;
             ShaderData.RefreshVisibility(this);
         }
     }

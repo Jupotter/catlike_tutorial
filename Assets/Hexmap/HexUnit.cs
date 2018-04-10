@@ -46,10 +46,12 @@ public class HexUnit : MonoBehaviour
 
     public int Speed
     {
-        get
-        {
-            return 24;
-        }
+        get { return 24; }
+    }
+
+    public int VisionRange
+    {
+        get { return 3; }
     }
 
     IEnumerator LookAt(Vector3 point)

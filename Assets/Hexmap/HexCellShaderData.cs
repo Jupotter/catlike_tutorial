@@ -5,14 +5,21 @@ public class HexCellShaderData : MonoBehaviour
 {
     const float transitionSpeed = 255f;
 
-    private Texture2D cellTexture;
-    private Color32[] cellTextureData;
-    List<HexCell>     transitioningCells = new List<HexCell>();
+    private          Texture2D     cellTexture;
+    private          Color32[]     cellTextureData;
+    private          bool          needsVisibilityReset;
+    private readonly List<HexCell> transitioningCells = new List<HexCell>();
 
-    public bool ImmediateMode { get; set; }
+    public bool    ImmediateMode { get; set; }
+    public HexGrid Grid          { get; set; }
 
     void LateUpdate()
     {
+        if (needsVisibilityReset) {
+            needsVisibilityReset = false;
+            Grid.ResetVisibility();
+        }
+
         int delta = (int) (Time.deltaTime * transitionSpeed);
 
         if (delta == 0) {
@@ -111,5 +118,11 @@ public class HexCellShaderData : MonoBehaviour
         }
 
         enabled = true;
+    }
+
+    public void ViewElevationChanged()
+    {
+        needsVisibilityReset = true;
+        enabled              = true;
     }
 }
