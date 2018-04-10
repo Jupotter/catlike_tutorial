@@ -3,11 +3,19 @@ using UnityEngine;
 
 public class NewMapMenu : MonoBehaviour
 {
-    public HexGrid hexGrid;
+    public HexGrid         hexGrid;
+    public HexMapGenerator mapGenerator;
+
+    bool generateMaps = true;
 
     private void CreateMap(int x, int z)
     {
-        this.hexGrid.CreateMap(x, z);
+        if (generateMaps) {
+            mapGenerator.GenerateMap(x, z);
+        } else {
+            hexGrid.CreateMap(x, z);
+        }
+
         HexMapCamera.ValidatePosition();
         Close();
     }
@@ -25,6 +33,7 @@ public class NewMapMenu : MonoBehaviour
         this.gameObject.SetActive(false);
         HexMapCamera.Locked = false;
     }
+
     [UsedImplicitly]
     public void CreateSmallMap()
     {
@@ -41,5 +50,11 @@ public class NewMapMenu : MonoBehaviour
     public void CreateLargeMap()
     {
         CreateMap(80, 60);
+    }
+
+    [UsedImplicitly]
+    public void ToggleMapGeneration(bool toggle)
+    {
+        generateMaps = toggle;
     }
 }

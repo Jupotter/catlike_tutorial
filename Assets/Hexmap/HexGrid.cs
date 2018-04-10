@@ -191,6 +191,16 @@ public class HexGrid : MonoBehaviour
         return this.cells[x + z * this.cellCountX];
     }
 
+    public HexCell GetCell(int xOffset, int zOffset)
+    {
+        return cells[xOffset + zOffset * cellCountX];
+    }
+
+    public HexCell GetCell(int cellIndex)
+    {
+        return cells[cellIndex];
+    }
+
     public void ShowUI(bool visible)
     {
         for (var i = 0; i < this.chunks.Length; i++) {

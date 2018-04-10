@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class SaveLoadMenu : MonoBehaviour
 {
-    private const int mapFileVersion = 3;
+    private const int mapFileVersion = 4;
 
     private bool saveMode;
     public  HexGrid    hexGrid;

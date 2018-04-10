@@ -17,12 +17,12 @@ public class HexCell : MonoBehaviour
 
     [SerializeField] HexCell[] neighbors;
 
-    bool walled;
-    private bool explored;
-    public HexUnit Unit { get; set; }
-    public HexCellShaderData ShaderData { get; set; }
-    public int               Index      { get; set; }
-    public bool              Explorable { get; set; }
+    bool                      walled;
+    private bool              explored;
+    public  HexUnit           Unit       { get; set; }
+    public  HexCellShaderData ShaderData { get; set; }
+    public  int               Index      { get; set; }
+    public  bool              Explorable { get; set; }
 
     public bool IsExplored
     {
@@ -471,7 +471,7 @@ public class HexCell : MonoBehaviour
     public void Save(BinaryWriter writer)
     {
         writer.Write((byte) terrainTypeIndex);
-        writer.Write((byte) elevation);
+        writer.Write((byte) (elevation + 127));
         writer.Write((byte) waterLevel);
         writer.Write((byte) urbanLevel);
         writer.Write((byte) farmLevel);
@@ -507,7 +507,11 @@ public class HexCell : MonoBehaviour
     {
         terrainTypeIndex = reader.ReadByte();
         ShaderData.RefreshTerrain(this);
-        elevation = reader.ReadByte();
+
+        if (header >= 4) {
+            elevation -= 127;
+        }
+
         RefreshPosition();
         waterLevel   = reader.ReadByte();
         urbanLevel   = reader.ReadByte();
