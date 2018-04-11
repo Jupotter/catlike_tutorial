@@ -4,6 +4,8 @@ using UnityEngine;
 public class HexMapGenerator : MonoBehaviour
 {
     public HexGrid grid;
+    public int     seed;
+    public bool    useFixedSeed;
 
     [Range(0f, 0.5f)] public float jitterProbability   = 0.25f;
     [Range(20, 200)]  public int   chunkSizeMin        = 30;
@@ -22,6 +24,17 @@ public class HexMapGenerator : MonoBehaviour
 
     public void GenerateMap(int x, int z)
     {
+        Random.State originalRandomState = Random.state;
+
+        if (!useFixedSeed) {
+            seed =  Random.Range(0, int.MaxValue);
+            seed ^= (int) System.DateTime.Now.Ticks;
+            seed ^= (int) Time.time;
+            seed &= int.MaxValue;
+        }
+
+        Random.InitState(seed);
+
         cellCount = x * z;
         grid.CreateMap(x, z);
 
@@ -39,6 +52,8 @@ public class HexMapGenerator : MonoBehaviour
         for (int i = 0; i < cellCount; i++) {
             grid.GetCell(i).SearchPhase = 0;
         }
+
+        Random.state = originalRandomState;
     }
 
     void CreateLand()
@@ -133,8 +148,10 @@ public class HexMapGenerator : MonoBehaviour
             current.Elevation = newElevation;
 
             if (originalElevation >= waterLevel && newElevation < waterLevel) {
-                size += 1;
+                budget += 1;
             }
+
+            size += 1;
 
             for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++) {
                 HexCell neighbor = current.GetNeighbor(d);
