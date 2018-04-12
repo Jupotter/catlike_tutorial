@@ -289,6 +289,8 @@ public class HexMapGenerator : MonoBehaviour
             if (!cell.IsUnderwater) {
                 cell.TerrainTypeIndex = cell.Elevation - cell.WaterLevel;
             }
+
+            cell.SetMapData((cell.Elevation - elevationMinimum) / (float) (elevationMaximum - elevationMinimum));
         }
     }
 
@@ -322,7 +324,7 @@ public class HexMapGenerator : MonoBehaviour
             for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++) {
                 HexCell neighbor = cell.GetNeighbor(d);
 
-                if (neighbor != cell && neighbor.Elevation == cell.Elevation + 2 && !erodibleCells.Contains(neighbor)) {
+                if (neighbor && neighbor.Elevation == cell.Elevation + 2 && !erodibleCells.Contains(neighbor)) {
                     erodibleCells.Add(neighbor);
                 }
             }

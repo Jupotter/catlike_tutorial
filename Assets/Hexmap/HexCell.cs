@@ -186,6 +186,11 @@ public class HexCell : MonoBehaviour
         highlight.enabled = true;
     }
 
+    public void SetMapData(float data)
+    {
+        ShaderData.SetMapData(this, data);
+    }
+
     #region rivers
 
     bool         hasIncomingRiver, hasOutgoingRiver;
