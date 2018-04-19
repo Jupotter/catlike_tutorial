@@ -22,11 +22,12 @@ public class HexMapGenerator : MonoBehaviour
 
     struct Biome
     {
-        public int terrain;
+        public int terrain, plant;
 
-        public Biome(int terrain)
+        public Biome(int terrain, int plant)
         {
             this.terrain = terrain;
+            this.plant   = plant;
         }
     }
 
@@ -36,22 +37,22 @@ public class HexMapGenerator : MonoBehaviour
 
     static Biome[] biomes =
     {
-        new Biome(0),
-        new Biome(4),
-        new Biome(4),
-        new Biome(4),
-        new Biome(0),
-        new Biome(2),
-        new Biome(2),
-        new Biome(2),
-        new Biome(0),
-        new Biome(1),
-        new Biome(1),
-        new Biome(1),
-        new Biome(0),
-        new Biome(1),
-        new Biome(1),
-        new Biome(1)
+        new Biome(0, 0),
+        new Biome(4, 0),
+        new Biome(4, 0),
+        new Biome(4, 0),
+        new Biome(0, 0),
+        new Biome(2, 0),
+        new Biome(2, 1),
+        new Biome(2, 2),
+        new Biome(0, 0),
+        new Biome(1, 0),
+        new Biome(1, 1),
+        new Biome(1, 2),
+        new Biome(0, 0),
+        new Biome(1, 1),
+        new Biome(1, 2),
+        new Biome(1, 3)
     };
 
     #region public parameters
@@ -395,9 +396,57 @@ public class HexMapGenerator : MonoBehaviour
                     cellBiome.terrain = 4;
                 }
 
+                if (cellBiome.terrain == 4) {
+                    cellBiome.plant = 0;
+                } else if (cellBiome.plant < 3 && cell.HasRiver) {
+                    cellBiome.plant += 1;
+                }
+
                 cell.TerrainTypeIndex = cellBiome.terrain;
+                cell.PlantLevel       = cellBiome.plant;
             } else {
-                cell.TerrainTypeIndex = 2;
+                int terrain;
+
+                if (cell.Elevation == waterLevel - 1) {
+                    int cliffs = 0, slopes = 0;
+
+                    for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++) {
+                        HexCell neighbor = cell.GetNeighbor(d);
+
+                        if (!neighbor) {
+                            continue;
+                        }
+
+                        int delta = neighbor.Elevation - cell.WaterLevel;
+
+                        if (delta == 0) {
+                            slopes += 1;
+                        } else if (delta > 0) {
+                            cliffs += 1;
+                        }
+                    }
+
+                    if (cliffs + slopes > 3) {
+                        terrain = 1;
+                    } else if (cliffs > 0) {
+                        terrain = 3;
+                    } else if (slopes > 0) {
+                        terrain = 0;
+                    } else {
+                        terrain = 1;
+                    }
+                } else if (cell.Elevation >= waterLevel) {
+                    terrain = 1;
+                } else if (cell.Elevation < 0) {
+                    terrain = 3;
+                } else {
+                    terrain = 2;
+                }
+
+                if (terrain == 1 && temperature < temperatureBands[0]) {
+                    terrain = 2;
+                }
+                cell.TerrainTypeIndex = terrain;
             }
         }
     }
