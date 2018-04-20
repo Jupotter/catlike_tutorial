@@ -1,0 +1,10 @@
+{
+    "name": "HexmapEditor",
+    "references": [
+        "Hexmap"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}
