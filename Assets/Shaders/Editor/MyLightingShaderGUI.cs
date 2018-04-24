@@ -121,44 +121,36 @@ public class MyLightingShaderGUI : ShaderGUI
         RenderingMode mode = RenderingMode.Opaque;
         showAlphaCutoff = false;
 
-        if (IsKeywordEnabled("_RENDERING_CUTOUT"))
-        {
-            mode = RenderingMode.Cutout;
+        if (IsKeywordEnabled("_RENDERING_CUTOUT")) {
+            mode            = RenderingMode.Cutout;
             showAlphaCutoff = true;
-        }
-        else if (IsKeywordEnabled("_RENDERING_FADE"))
-        {
+        } else if (IsKeywordEnabled("_RENDERING_FADE")) {
             mode = RenderingMode.Fade;
-        }
-        else if (IsKeywordEnabled("_RENDERING_TRANSPARENT"))
-        {
+        } else if (IsKeywordEnabled("_RENDERING_TRANSPARENT")) {
             mode = RenderingMode.Transparent;
         }
 
         EditorGUI.BeginChangeCheck();
-        mode = (RenderingMode)EditorGUILayout.EnumPopup(MakeLabel("Rendering Mode"), mode);
+        mode = (RenderingMode) EditorGUILayout.EnumPopup(MakeLabel("Rendering Mode"), mode);
 
-        if (EditorGUI.EndChangeCheck())
-        {
+        if (EditorGUI.EndChangeCheck()) {
             RecordAction("Rendering Mode");
-            SetKeyword("_RENDERING_CUTOUT", mode == RenderingMode.Cutout);
-            SetKeyword("_RENDERING_FADE", mode == RenderingMode.Fade);
+            SetKeyword("_RENDERING_CUTOUT",      mode == RenderingMode.Cutout);
+            SetKeyword("_RENDERING_FADE",        mode == RenderingMode.Fade);
             SetKeyword("_RENDERING_TRANSPARENT", mode == RenderingMode.Transparent);
 
-            RenderingSettings settings = RenderingSettings.modes[(int)mode];
+            RenderingSettings settings = RenderingSettings.modes[(int) mode];
 
-            foreach (Material m in editor.targets)
-            {
-                m.renderQueue = (int)settings.queue;
+            foreach (Material m in editor.targets) {
+                m.renderQueue = (int) settings.queue;
                 m.SetOverrideTag("RenderType", settings.renderType);
-                m.SetInt("_SrcBlend", (int)settings.srcBlend);
-                m.SetInt("_DstBlend", (int)settings.dstBlend);
-                m.SetInt("_ZWrite", settings.zWrite ? 1 : 0);
+                m.SetInt("_SrcBlend", (int) settings.srcBlend);
+                m.SetInt("_DstBlend", (int) settings.dstBlend);
+                m.SetInt("_ZWrite",   settings.zWrite ? 1 : 0);
             }
         }
 
-        if (mode == RenderingMode.Fade || mode == RenderingMode.Transparent)
-        {
+        if (mode == RenderingMode.Fade || mode == RenderingMode.Transparent) {
             DoSemitransparentShadows();
         }
     }
@@ -235,7 +227,6 @@ public class MyLightingShaderGUI : ShaderGUI
         EditorGUI.BeginChangeCheck();
         editor.TexturePropertySingleLine(MakeLabel(map, "Occlusion (G)"), map, slider);
 
-
         if (EditorGUI.EndChangeCheck()) {
             SetKeyword("_OCCLUSION_MAP", map.textureValue);
         }
@@ -254,10 +245,8 @@ public class MyLightingShaderGUI : ShaderGUI
         if (EditorGUI.EndChangeCheck()) {
             SetKeyword("_EMISSION_MAP", map.textureValue);
 
-            foreach (Material m in editor.targets)
-            {
-                m.globalIlluminationFlags &=
-                    ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+            foreach (Material m in editor.targets) {
+                m.globalIlluminationFlags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
             }
         }
     }
@@ -329,16 +318,14 @@ public class MyLightingShaderGUI : ShaderGUI
     {
         EditorGUI.BeginChangeCheck();
         bool semitransparentShadows =
-            EditorGUILayout.Toggle(
-                MakeLabel("Semitransp. Shadows", "Semitransparent Shadows"),
-                IsKeywordEnabled("_SEMITRANSPARENT_SHADOWS")
-            );
-        if (EditorGUI.EndChangeCheck())
-        {
+            EditorGUILayout.Toggle(MakeLabel("Semitransp. Shadows", "Semitransparent Shadows"),
+                                   IsKeywordEnabled("_SEMITRANSPARENT_SHADOWS"));
+
+        if (EditorGUI.EndChangeCheck()) {
             SetKeyword("_SEMITRANSPARENT_SHADOWS", semitransparentShadows);
         }
-        if (!semitransparentShadows)
-        {
+
+        if (!semitransparentShadows) {
             this.showAlphaCutoff = true;
         }
     }
@@ -348,12 +335,11 @@ public class MyLightingShaderGUI : ShaderGUI
         MaterialProperty map = FindProperty("_ParallaxMap");
         Texture          tex = map.textureValue;
         EditorGUI.BeginChangeCheck();
-        editor.TexturePropertySingleLine(
-            MakeLabel(map, "Parallax (G)"), map,
-            tex ? FindProperty("_ParallaxStrength") : null
-        );
-        if (EditorGUI.EndChangeCheck() && tex != map.textureValue)
-        {
+        editor.TexturePropertySingleLine(MakeLabel(map, "Parallax (G)"),
+                                         map,
+                                         tex ? FindProperty("_ParallaxStrength") : null);
+
+        if (EditorGUI.EndChangeCheck() && tex != map.textureValue) {
             SetKeyword("_PARALLAX_MAP", map.textureValue);
         }
     }
@@ -369,18 +355,17 @@ public class MyLightingShaderGUI : ShaderGUI
     {
         GUILayout.Label("Wireframe", EditorStyles.boldLabel);
         EditorGUI.indentLevel += 2;
-        editor.ShaderProperty(
-            FindProperty("_WireframeColor"),
-            MakeLabel("Color")
-        );
-        editor.ShaderProperty(
-            FindProperty("_WireframeSmoothing"),
-            MakeLabel("Smoothing", "In screen space.")
-        );
-        editor.ShaderProperty(
-            FindProperty("_WireframeThickness"),
-            MakeLabel("Thickness", "In screen space.")
-        );
+        editor.ShaderProperty(FindProperty("_WireframeColor"),     MakeLabel("Color"));
+        editor.ShaderProperty(FindProperty("_WireframeSmoothing"), MakeLabel("Smoothing", "In screen space."));
+        editor.ShaderProperty(FindProperty("_WireframeThickness"), MakeLabel("Thickness", "In screen space."));
+        EditorGUI.indentLevel -= 2;
+    }
+
+    void DoTessellation()
+    {
+        GUILayout.Label("Tessellation", EditorStyles.boldLabel);
+        EditorGUI.indentLevel += 2;
+        editor.ShaderProperty(FindProperty("_TessellationUniform"), MakeLabel("Uniform"));
         EditorGUI.indentLevel -= 2;
     }
 
@@ -391,8 +376,11 @@ public class MyLightingShaderGUI : ShaderGUI
         this.properties = properties;
         DoRenderingMode();
 
-        if (target.HasProperty("_WireframeColor"))
-        {
+        if (target.HasProperty("_TessellationUniform")) {
+            DoTessellation();
+        }
+
+        if (target.HasProperty("_WireframeColor")) {
             DoWireframe();
         }
 
