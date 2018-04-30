@@ -63,6 +63,11 @@ public class MyLightingShaderGUI : ShaderGUI
         };
     }
 
+    enum TessellationMode
+    {
+        Uniform, Edge
+    }
+
     static readonly GUIContent           staticLabel    = new GUIContent();
     static readonly ColorPickerHDRConfig emissionConfig = new ColorPickerHDRConfig(0f, 99f, 1f / 99f, 3f);
 
@@ -365,7 +370,37 @@ public class MyLightingShaderGUI : ShaderGUI
     {
         GUILayout.Label("Tessellation", EditorStyles.boldLabel);
         EditorGUI.indentLevel += 2;
-        editor.ShaderProperty(FindProperty("_TessellationUniform"), MakeLabel("Uniform"));
+
+        TessellationMode mode = TessellationMode.Uniform;
+        if (IsKeywordEnabled("_TESSELLATION_EDGE"))
+        {
+            mode = TessellationMode.Edge;
+        }
+        EditorGUI.BeginChangeCheck();
+        mode = (TessellationMode)EditorGUILayout.EnumPopup(
+            MakeLabel("Mode"), mode
+        );
+        if (EditorGUI.EndChangeCheck())
+        {
+            RecordAction("Tessellation Mode");
+            SetKeyword("_TESSELLATION_EDGE", mode == TessellationMode.Edge);
+        }
+
+        if (mode == TessellationMode.Uniform)
+        {
+            editor.ShaderProperty(
+                FindProperty("_TessellationUniform"),
+                MakeLabel("Uniform")
+            );
+        }
+        else
+        {
+            editor.ShaderProperty(
+                FindProperty("_TessellationEdgeLength"),
+                MakeLabel("Edge Length")
+            );
+        }
+
         EditorGUI.indentLevel -= 2;
     }
 
