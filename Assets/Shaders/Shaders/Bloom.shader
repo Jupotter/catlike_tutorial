@@ -98,7 +98,7 @@
 
 				half4 FragmentProgram (Interpolators i) : SV_Target {
 					half4 c = tex2D(_SourceTex, i.uv);
-					c.rgb += _Intensity *SampleBox(i.uv, 0.5);
+					c.rgb += _Intensity * SampleBox(i.uv, 0.5);
 					return c;
 				}
 			ENDCG

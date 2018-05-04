@@ -9,7 +9,8 @@ Material:
   m_Name: Circuitry
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: _DETAIL_ALBEDO_MAP _DETAIL_MASK _DETAIL_MULX2 _DETAIL_NORMAL_MAP
-    _EMISSION _EMISSION_MAP _METALLIC_MAP _NORMALMAP _NORMAL_MAP _OCCLUSION_MAP _SMOOTHNESS_METALLIC
+    _EMISSION _EMISSION_MAP _METALLICGLOSSMAP _METALLIC_MAP _NORMALMAP _NORMAL_MAP
+    _OCCLUSION_MAP _SMOOTHNESS_METALLIC
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -32,7 +33,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
-        m_Texture: {fileID: 2800000, guid: ad4d8d02abd99834586cddab045a7910, type: 3}
+        m_Texture: {fileID: 2800000, guid: 7e4a6b8765072ac40b28e271613c17fb, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailTex:
@@ -48,7 +49,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 3f64aebb8c98f074a852b7a34328bed8, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicMap:

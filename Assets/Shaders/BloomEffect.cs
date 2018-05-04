@@ -72,8 +72,8 @@ public class BloomEffect : MonoBehaviour
         if (debug) {
             Graphics.Blit(currentSource, destination, bloom, DebugBloomPass);
         } else {
-            bloom.SetTexture("_SourceTex", currentSource);
-            Graphics.Blit(source, destination, bloom, ApplyBloomPass);
+            bloom.SetTexture("_SourceTex", source);
+            Graphics.Blit(currentSource, destination, bloom, ApplyBloomPass);
         }
 
         RenderTexture.ReleaseTemporary(currentSource);
